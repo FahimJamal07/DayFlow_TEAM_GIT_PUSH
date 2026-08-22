@@ -15,23 +15,23 @@ import {
 } from '../types';
 
 export const INITIAL_DEPARTMENTS: Department[] = [
-  { id: 'd1', code: 'ENG', name: 'Engineering', description: 'Software Engineering & Cloud Platform Architecture' },
-  { id: 'd2', code: 'HR', name: 'Human Resources', description: 'People Operations, Culture & Compensation' },
-  { id: 'd3', code: 'DES', name: 'Product Design', description: 'User Experience & Systems Design' },
-  { id: 'd4', code: 'FIN', name: 'Finance & Accounting', description: 'Financial Planning, Auditing & Payroll' },
+  { id: 'd1000000-0000-0000-0000-000000000001', code: 'ENG', name: 'Engineering', description: 'Software Engineering & Cloud Platform Architecture' },
+  { id: 'd1000000-0000-0000-0000-000000000002', code: 'HR', name: 'Human Resources', description: 'People Operations, Culture & Compensation' },
+  { id: 'd1000000-0000-0000-0000-000000000003', code: 'DES', name: 'Product Design', description: 'User Experience & Systems Design' },
+  { id: 'd1000000-0000-0000-0000-000000000004', code: 'FIN', name: 'Finance & Accounting', description: 'Financial Planning, Auditing & Payroll' },
 ];
 
 export const INITIAL_DESIGNATIONS: Designation[] = [
-  { id: 'g1', department_id: 'd1', title: 'Senior Frontend Engineer', salary_grade: 'L5-Eng' },
-  { id: 'g2', department_id: 'd1', title: 'Lead Backend Architect', salary_grade: 'L6-Eng' },
-  { id: 'g3', department_id: 'd2', title: 'HR Lead Operations', salary_grade: 'L5-HR' },
-  { id: 'g4', department_id: 'd3', title: 'Staff Product Designer', salary_grade: 'L6-Des' },
-  { id: 'g5', department_id: 'd4', title: 'Senior Financial Analyst', salary_grade: 'L5-Fin' },
+  { id: 'b1000000-0000-0000-0000-000000000001', department_id: 'd1000000-0000-0000-0000-000000000001', title: 'Senior Frontend Engineer', salary_grade: 'L5-Eng' },
+  { id: 'b1000000-0000-0000-0000-000000000002', department_id: 'd1000000-0000-0000-0000-000000000001', title: 'Lead Backend Architect', salary_grade: 'L6-Eng' },
+  { id: 'b1000000-0000-0000-0000-000000000003', department_id: 'd1000000-0000-0000-0000-000000000002', title: 'HR Lead Operations', salary_grade: 'L5-HR' },
+  { id: 'b1000000-0000-0000-0000-000000000004', department_id: 'd1000000-0000-0000-0000-000000000003', title: 'Staff Product Designer', salary_grade: 'L6-Des' },
+  { id: 'b1000000-0000-0000-0000-000000000005', department_id: 'd1000000-0000-0000-0000-000000000004', title: 'Senior Financial Analyst', salary_grade: 'L5-Fin' },
 ];
 
 export const INITIAL_PROFILES: UserProfile[] = [
   {
-    id: 'p1',
+    id: 'f1000000-0000-0000-0000-000000000001',
     email: 'employee@dayflow.hr',
     full_name: 'Ananya Sharma',
     role: 'employee',
@@ -39,7 +39,7 @@ export const INITIAL_PROFILES: UserProfile[] = [
     created_at: '2023-01-15T09:00:00Z',
   },
   {
-    id: 'p2',
+    id: 'f1000000-0000-0000-0000-000000000002',
     email: 'hr@dayflow.hr',
     full_name: 'Rahul Verma',
     role: 'hr',
@@ -47,7 +47,7 @@ export const INITIAL_PROFILES: UserProfile[] = [
     created_at: '2022-06-01T09:00:00Z',
   },
   {
-    id: 'p3',
+    id: 'f1000000-0000-0000-0000-000000000003',
     email: 'admin@dayflow.hr',
     full_name: 'Vikramaditya Singh',
     role: 'admin',
@@ -55,7 +55,7 @@ export const INITIAL_PROFILES: UserProfile[] = [
     created_at: '2021-03-10T09:00:00Z',
   },
   {
-    id: 'p4',
+    id: 'f1000000-0000-0000-0000-000000000004',
     email: 'priya.nair@dayflow.hr',
     full_name: 'Priya Nair',
     role: 'employee',
@@ -63,7 +63,7 @@ export const INITIAL_PROFILES: UserProfile[] = [
     created_at: '2023-04-01T09:00:00Z',
   },
   {
-    id: 'p5',
+    id: 'f1000000-0000-0000-0000-000000000005',
     email: 'rohan.mehta@dayflow.hr',
     full_name: 'Rohan Mehta',
     role: 'employee',
@@ -74,11 +74,11 @@ export const INITIAL_PROFILES: UserProfile[] = [
 
 export const INITIAL_EMPLOYEES: Employee[] = [
   {
-    id: 'e1',
-    profile_id: 'p1',
+    id: 'e1000000-0000-0000-0000-000000000001',
+    profile_id: 'f1000000-0000-0000-0000-000000000001',
     employee_code: 'DF-1001',
-    department_id: 'd1',
-    designation_id: 'g1',
+    department_id: 'd1000000-0000-0000-0000-000000000001',
+    designation_id: 'b1000000-0000-0000-0000-000000000001',
     join_date: '2023-01-15',
     status: 'active',
     phone: '+91 98765 43210',
@@ -89,11 +89,11 @@ export const INITIAL_EMPLOYEES: Employee[] = [
     designation: INITIAL_DESIGNATIONS[0],
   },
   {
-    id: 'e2',
-    profile_id: 'p2',
+    id: 'e1000000-0000-0000-0000-000000000002',
+    profile_id: 'f1000000-0000-0000-0000-000000000002',
     employee_code: 'DF-1002',
-    department_id: 'd2',
-    designation_id: 'g3',
+    department_id: 'd1000000-0000-0000-0000-000000000002',
+    designation_id: 'b1000000-0000-0000-0000-000000000003',
     join_date: '2022-06-01',
     status: 'active',
     phone: '+91 98765 43211',
@@ -104,11 +104,11 @@ export const INITIAL_EMPLOYEES: Employee[] = [
     designation: INITIAL_DESIGNATIONS[2],
   },
   {
-    id: 'e3',
-    profile_id: 'p3',
+    id: 'e1000000-0000-0000-0000-000000000003',
+    profile_id: 'f1000000-0000-0000-0000-000000000003',
     employee_code: 'DF-1000',
-    department_id: 'd1',
-    designation_id: 'g2',
+    department_id: 'd1000000-0000-0000-0000-000000000001',
+    designation_id: 'b1000000-0000-0000-0000-000000000002',
     join_date: '2021-03-10',
     status: 'active',
     phone: '+91 98765 43212',
@@ -119,11 +119,11 @@ export const INITIAL_EMPLOYEES: Employee[] = [
     designation: INITIAL_DESIGNATIONS[1],
   },
   {
-    id: 'e4',
-    profile_id: 'p4',
+    id: 'e1000000-0000-0000-0000-000000000004',
+    profile_id: 'f1000000-0000-0000-0000-000000000004',
     employee_code: 'DF-1004',
-    department_id: 'd3',
-    designation_id: 'g4',
+    department_id: 'd1000000-0000-0000-0000-000000000003',
+    designation_id: 'b1000000-0000-0000-0000-000000000004',
     join_date: '2023-04-01',
     status: 'active',
     phone: '+91 98765 43213',
@@ -134,11 +134,11 @@ export const INITIAL_EMPLOYEES: Employee[] = [
     designation: INITIAL_DESIGNATIONS[3],
   },
   {
-    id: 'e5',
-    profile_id: 'p5',
+    id: 'e1000000-0000-0000-0000-000000000005',
+    profile_id: 'f1000000-0000-0000-0000-000000000005',
     employee_code: 'DF-1005',
-    department_id: 'd1',
-    designation_id: 'g2',
+    department_id: 'd1000000-0000-0000-0000-000000000001',
+    designation_id: 'b1000000-0000-0000-0000-000000000002',
     join_date: '2023-09-15',
     status: 'active',
     phone: '+91 98765 43214',
@@ -151,24 +151,24 @@ export const INITIAL_EMPLOYEES: Employee[] = [
 ];
 
 export const INITIAL_LEAVE_TYPES: LeaveType[] = [
-  { id: 'lt1', name: 'Casual Leave', code: 'CASUAL', max_days_per_year: 12, requires_approval: true, is_paid: true },
-  { id: 'lt2', name: 'Sick Leave', code: 'SICK', max_days_per_year: 10, requires_approval: true, is_paid: true },
-  { id: 'lt3', name: 'Earned Privilege Leave', code: 'EARNED', max_days_per_year: 15, requires_approval: true, is_paid: true },
-  { id: 'lt4', name: 'Parental Leave', code: 'PARENTAL', max_days_per_year: 90, requires_approval: true, is_paid: true },
+  { id: 'c1000000-0000-0000-0000-000000000001', name: 'Casual Leave', code: 'CASUAL', max_days_per_year: 12, requires_approval: true, is_paid: true },
+  { id: 'c1000000-0000-0000-0000-000000000002', name: 'Sick Leave', code: 'SICK', max_days_per_year: 10, requires_approval: true, is_paid: true },
+  { id: 'c1000000-0000-0000-0000-000000000003', name: 'Earned Privilege Leave', code: 'EARNED', max_days_per_year: 15, requires_approval: true, is_paid: true },
+  { id: 'c1000000-0000-0000-0000-000000000004', name: 'Parental Leave', code: 'PARENTAL', max_days_per_year: 90, requires_approval: true, is_paid: true },
 ];
 
 export const INITIAL_LEAVE_BALANCES: LeaveBalance[] = [
-  { id: 'lb1', employee_id: 'e1', leave_type_id: 'lt1', total_allocated: 12, used: 3, pending: 1, year: 2026, leave_type: INITIAL_LEAVE_TYPES[0] },
-  { id: 'lb2', employee_id: 'e1', leave_type_id: 'lt2', total_allocated: 10, used: 1, pending: 0, year: 2026, leave_type: INITIAL_LEAVE_TYPES[1] },
-  { id: 'lb3', employee_id: 'e1', leave_type_id: 'lt3', total_allocated: 15, used: 2, pending: 0, year: 2026, leave_type: INITIAL_LEAVE_TYPES[2] },
-  { id: 'lb4', employee_id: 'e5', leave_type_id: 'lt3', total_allocated: 15, used: 0, pending: 5, year: 2026, leave_type: INITIAL_LEAVE_TYPES[2] },
+  { id: 'cb100000-0000-0000-0000-000000000001', employee_id: 'e1000000-0000-0000-0000-000000000001', leave_type_id: 'c1000000-0000-0000-0000-000000000001', total_allocated: 12, used: 3, pending: 1, year: 2026, leave_type: INITIAL_LEAVE_TYPES[0] },
+  { id: 'cb100000-0000-0000-0000-000000000002', employee_id: 'e1000000-0000-0000-0000-000000000001', leave_type_id: 'c1000000-0000-0000-0000-000000000002', total_allocated: 10, used: 1, pending: 0, year: 2026, leave_type: INITIAL_LEAVE_TYPES[1] },
+  { id: 'cb100000-0000-0000-0000-000000000003', employee_id: 'e1000000-0000-0000-0000-000000000001', leave_type_id: 'c1000000-0000-0000-0000-000000000003', total_allocated: 15, used: 2, pending: 0, year: 2026, leave_type: INITIAL_LEAVE_TYPES[2] },
+  { id: 'cb100000-0000-0000-0000-000000000004', employee_id: 'e1000000-0000-0000-0000-000000000005', leave_type_id: 'c1000000-0000-0000-0000-000000000003', total_allocated: 15, used: 0, pending: 5, year: 2026, leave_type: INITIAL_LEAVE_TYPES[2] },
 ];
 
 export const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [
   {
-    id: 'lr1',
-    employee_id: 'e1',
-    leave_type_id: 'lt1',
+    id: 'a1000000-0000-0000-0000-000000000001',
+    employee_id: 'e1000000-0000-0000-0000-000000000001',
+    leave_type_id: 'c1000000-0000-0000-0000-000000000001',
     start_date: '2026-08-28',
     end_date: '2026-08-29',
     total_days: 2,
@@ -179,9 +179,9 @@ export const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [
     leave_type: INITIAL_LEAVE_TYPES[0],
   },
   {
-    id: 'lr2',
-    employee_id: 'e5',
-    leave_type_id: 'lt3',
+    id: 'a1000000-0000-0000-0000-000000000002',
+    employee_id: 'e1000000-0000-0000-0000-000000000005',
+    leave_type_id: 'c1000000-0000-0000-0000-000000000003',
     start_date: '2026-09-01',
     end_date: '2026-09-05',
     total_days: 5,
@@ -192,15 +192,15 @@ export const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [
     leave_type: INITIAL_LEAVE_TYPES[2],
   },
   {
-    id: 'lr3',
-    employee_id: 'e4',
-    leave_type_id: 'lt2',
+    id: 'a1000000-0000-0000-0000-000000000003',
+    employee_id: 'e1000000-0000-0000-0000-000000000004',
+    leave_type_id: 'c1000000-0000-0000-0000-000000000002',
     start_date: '2026-08-10',
     end_date: '2026-08-11',
     total_days: 2,
     reason: 'Fever and rest',
     status: 'approved',
-    reviewed_by: 'p2',
+    reviewed_by: 'f1000000-0000-0000-0000-000000000002',
     reviewed_at: '2026-08-10T09:15:00Z',
     created_at: '2026-08-09T18:00:00Z',
     employee: INITIAL_EMPLOYEES[3],
@@ -211,7 +211,7 @@ export const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [
 export const INITIAL_ATTENDANCE: AttendanceRecord[] = [
   {
     id: 'att1',
-    employee_id: 'e1',
+    employee_id: 'e1000000-0000-0000-0000-000000000001',
     date: '2026-08-22',
     status: 'present',
     check_in: '2026-08-22T09:02:00Z',
@@ -224,7 +224,7 @@ export const INITIAL_ATTENDANCE: AttendanceRecord[] = [
   },
   {
     id: 'att2',
-    employee_id: 'e2',
+    employee_id: 'e1000000-0000-0000-0000-000000000002',
     date: '2026-08-22',
     status: 'present',
     check_in: '2026-08-22T08:55:00Z',
@@ -237,7 +237,7 @@ export const INITIAL_ATTENDANCE: AttendanceRecord[] = [
   },
   {
     id: 'att3',
-    employee_id: 'e3',
+    employee_id: 'e1000000-0000-0000-0000-000000000003',
     date: '2026-08-22',
     status: 'present',
     check_in: '2026-08-22T09:15:00Z',
@@ -250,7 +250,7 @@ export const INITIAL_ATTENDANCE: AttendanceRecord[] = [
   },
   {
     id: 'att4',
-    employee_id: 'e4',
+    employee_id: 'e1000000-0000-0000-0000-000000000004',
     date: '2026-08-22',
     status: 'present',
     check_in: '2026-08-22T09:30:00Z',
@@ -263,7 +263,7 @@ export const INITIAL_ATTENDANCE: AttendanceRecord[] = [
   },
   {
     id: 'att5',
-    employee_id: 'e5',
+    employee_id: 'e1000000-0000-0000-0000-000000000005',
     date: '2026-08-22',
     status: 'late',
     check_in: '2026-08-22T10:45:00Z',
@@ -280,7 +280,7 @@ export const INITIAL_ATTENDANCE: AttendanceRecord[] = [
 export const INITIAL_PAYROLL: PayrollRecord[] = [
   {
     id: 'pay1',
-    employee_id: 'e1',
+    employee_id: 'e1000000-0000-0000-0000-000000000001',
     pay_period_month: 8,
     pay_period_year: 2026,
     base_salary: 120000,
@@ -302,7 +302,7 @@ export const INITIAL_PAYROLL: PayrollRecord[] = [
   },
   {
     id: 'pay2',
-    employee_id: 'e5',
+    employee_id: 'e1000000-0000-0000-0000-000000000005',
     pay_period_month: 8,
     pay_period_year: 2026,
     base_salary: 135000,
@@ -327,7 +327,7 @@ export const INITIAL_PAYROLL: PayrollRecord[] = [
 export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   {
     id: 'n1',
-    user_id: 'p1',
+    user_id: 'f1000000-0000-0000-0000-000000000001',
     title: 'Workday Check-in Confirmed',
     message: 'You successfully checked in today at 09:02 AM.',
     type: 'success',
@@ -336,7 +336,7 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   },
   {
     id: 'n2',
-    user_id: 'p2',
+    user_id: 'f1000000-0000-0000-0000-000000000002',
     title: 'Pending Leave Request',
     message: 'Ananya Sharma submitted a leave request for Aug 28 - Aug 29.',
     type: 'action',
@@ -346,7 +346,7 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   },
   {
     id: 'n3',
-    user_id: 'p2',
+    user_id: 'f1000000-0000-0000-0000-000000000002',
     title: 'Workforce Signal Alert',
     message: 'Late check-in pattern detected for Rohan Mehta in Engineering.',
     type: 'warning',
@@ -359,7 +359,7 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
 export const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
     id: 'a1',
-    actor_id: 'p1',
+    actor_id: 'f1000000-0000-0000-0000-000000000001',
     actor_name: 'Ananya Sharma',
     action: 'CHECK_IN',
     target_type: 'attendance',
@@ -369,17 +369,17 @@ export const INITIAL_AUDIT_LOGS: AuditLog[] = [
   },
   {
     id: 'a2',
-    actor_id: 'p1',
+    actor_id: 'f1000000-0000-0000-0000-000000000001',
     actor_name: 'Ananya Sharma',
     action: 'LEAVE_SUBMITTED',
     target_type: 'leave_request',
-    target_id: 'lr1',
+    target_id: 'a1000000-0000-0000-0000-000000000001',
     metadata: { start_date: '2026-08-28', end_date: '2026-08-29', total_days: 2 },
     timestamp: '2026-08-21T10:30:00Z',
   },
   {
     id: 'a3',
-    actor_id: 'p2',
+    actor_id: 'f1000000-0000-0000-0000-000000000002',
     actor_name: 'Rahul Verma',
     action: 'PAYROLL_PROCESSED',
     target_type: 'payroll',
@@ -391,23 +391,23 @@ export const INITIAL_AUDIT_LOGS: AuditLog[] = [
 
 export const INITIAL_SIGNALS: WorkforceSignal[] = [
   {
-    id: 'sig1',
+    id: 'a2000000-0000-0000-0000-000000000001',
     signal_type: 'LATE_CHECKIN_PATTERN',
     title: 'Repeated Late Check-Ins',
     description: 'Rohan Mehta has checked in after 10:15 AM on 4 of the last 5 working days.',
     severity: 'medium',
-    employee_id: 'e5',
-    department_id: 'd1',
+    employee_id: 'e1000000-0000-0000-0000-000000000005',
+    department_id: 'd1000000-0000-0000-0000-000000000001',
     metadata: { late_count: 4, window_days: 5 },
     created_at: '2026-08-22T10:45:00Z',
   },
   {
-    id: 'sig2',
+    id: 'a2000000-0000-0000-0000-000000000002',
     signal_type: 'LEAVE_CONCENTRATION',
     title: 'Product Design Overlapping Leave Risk',
     description: '50% of Product Design team has requested leave in the first week of September.',
     severity: 'high',
-    department_id: 'd3',
+    department_id: 'd1000000-0000-0000-0000-000000000003',
     metadata: { overlap_percentage: 50 },
     created_at: '2026-08-20T15:00:00Z',
   }

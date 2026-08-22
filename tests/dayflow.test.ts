@@ -3,7 +3,7 @@ import { mockEngine } from '../src/mock/mockEngine';
 
 describe('DAYFLOW HRMS Master Test Suite', () => {
   beforeEach(() => {
-    mockEngine.setCurrentUser('p1'); // Ananya (Employee)
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000001'); // Ananya (Employee)
   });
 
   it('REQ-06 & REQ-05: Auth & Role Authorization', () => {
@@ -12,13 +12,13 @@ describe('DAYFLOW HRMS Master Test Suite', () => {
     expect(user.role).toBe('employee');
 
     // Switch to HR role
-    const hrUser = mockEngine.setCurrentUser('p2');
+    const hrUser = mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000002');
     expect(hrUser.role).toBe('hr');
     expect(hrUser.email).toBe('hr@dayflow.hr');
   });
 
   it('REQ-09 & REQ-10 & REQ-11: Attendance Check-In, Break, & Check-Out Workflow', () => {
-    mockEngine.setCurrentUser('p4'); // Priya Nair
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000004'); // Priya Nair
     const emp = mockEngine.getCurrentEmployee()!;
 
     // Check In if not active
@@ -46,7 +46,7 @@ describe('DAYFLOW HRMS Master Test Suite', () => {
   });
 
   it('REQ-13 & REQ-14: Leave Submission & Team Availability Calculation', () => {
-    mockEngine.setCurrentUser('p1');
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000001');
     const emp = mockEngine.getCurrentEmployee()!;
 
     // Team availability lookup
@@ -57,7 +57,7 @@ describe('DAYFLOW HRMS Master Test Suite', () => {
     // Submit leave request for 2 days
     const req = mockEngine.submitLeaveRequest({
       employee_id: emp.id,
-      leave_type_id: 'lt1',
+      leave_type_id: 'c1000000-0000-0000-0000-000000000001',
       start_date: '2026-10-10',
       end_date: '2026-10-11',
       reason: 'Automated leave request test',
@@ -69,25 +69,25 @@ describe('DAYFLOW HRMS Master Test Suite', () => {
 
   it('REQ-15 & REQ-38: HR Decision Approval & Cascading State Updates', () => {
     // Employee submits
-    mockEngine.setCurrentUser('p1');
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000001');
     const emp = mockEngine.getCurrentEmployee()!;
     const newReq = mockEngine.submitLeaveRequest({
       employee_id: emp.id,
-      leave_type_id: 'lt2',
+      leave_type_id: 'c1000000-0000-0000-0000-000000000002',
       start_date: '2026-11-15',
       end_date: '2026-11-15',
       reason: 'Automated test sick leave',
     });
 
-    const initialUsed = mockEngine.getLeaveBalances(emp.id).find((b) => b.leave_type_id === 'lt2')!.used;
+    const initialUsed = mockEngine.getLeaveBalances(emp.id).find((b) => b.leave_type_id === 'c1000000-0000-0000-0000-000000000002')!.used;
 
     // HR Approves
-    mockEngine.setCurrentUser('p2');
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000002');
     const approvedReq = mockEngine.processLeaveDecision(newReq.id, 'approved');
     expect(approvedReq.status).toBe('approved');
 
     // Cascading verification
-    const updatedUsed = mockEngine.getLeaveBalances(emp.id).find((b) => b.leave_type_id === 'lt2')!.used;
+    const updatedUsed = mockEngine.getLeaveBalances(emp.id).find((b) => b.leave_type_id === 'c1000000-0000-0000-0000-000000000002')!.used;
     expect(updatedUsed).toBe(initialUsed + 1);
 
     // Audit log check
@@ -97,12 +97,12 @@ describe('DAYFLOW HRMS Master Test Suite', () => {
 
   it('REQ-16 & REQ-05: Payroll Data Isolation Security Policy', () => {
     // Employee role isolation
-    mockEngine.setCurrentUser('p1');
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000001');
     const empPayroll = mockEngine.getPayrollRecords();
-    expect(empPayroll.every((p) => p.employee_id === 'e1')).toBe(true);
+    expect(empPayroll.every((p) => p.employee_id === 'e1000000-0000-0000-0000-000000000001')).toBe(true);
 
     // HR role full company view
-    mockEngine.setCurrentUser('p2');
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000002');
     const hrPayroll = mockEngine.getPayrollRecords();
     expect(hrPayroll.length).toBeGreaterThan(1);
   });

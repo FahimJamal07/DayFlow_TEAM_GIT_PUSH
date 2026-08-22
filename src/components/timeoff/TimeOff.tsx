@@ -11,7 +11,7 @@ export const TimeOff: React.FC = () => {
   const [showModal, setShowModal] = useState<boolean>(false);
 
   // Form states
-  const [selectedType, setSelectedType] = useState<string>('lt1');
+  const [selectedType, setSelectedType] = useState<string>('c1000000-0000-0000-0000-000000000001');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [reason, setReason] = useState<string>('');
@@ -31,9 +31,9 @@ export const TimeOff: React.FC = () => {
   };
 
   const leaveTypes: LeaveType[] = [
-    { id: 'lt1', name: 'Casual Leave', code: 'CASUAL', max_days_per_year: 12, requires_approval: true, is_paid: true },
-    { id: 'lt2', name: 'Sick Leave', code: 'SICK', max_days_per_year: 10, requires_approval: true, is_paid: true },
-    { id: 'lt3', name: 'Earned Privilege Leave', code: 'EARNED', max_days_per_year: 15, requires_approval: true, is_paid: true },
+    { id: 'c1000000-0000-0000-0000-000000000001', name: 'Casual Leave', code: 'CASUAL', max_days_per_year: 12, requires_approval: true, is_paid: true },
+    { id: 'c1000000-0000-0000-0000-000000000002', name: 'Sick Leave', code: 'SICK', max_days_per_year: 10, requires_approval: true, is_paid: true },
+    { id: 'c1000000-0000-0000-0000-000000000003', name: 'Earned Privilege Leave', code: 'EARNED', max_days_per_year: 15, requires_approval: true, is_paid: true },
   ];
 
   // Calculate team availability
