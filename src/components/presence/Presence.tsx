@@ -40,7 +40,7 @@ export const Presence: React.FC = () => {
   });
 
   return (
-    <div className="space-y-5 animate-in fade-in duration-200">
+    <div className="space-y-6 animate-in fade-in duration-200">
       {/* Top Banner */}
       <PageHeader
         title={isHR ? 'Workforce Presence' : 'Your Presence & History'}
@@ -53,7 +53,7 @@ export const Presence: React.FC = () => {
 
       {/* HR Workforce Summary Metrics */}
       {isHR && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <StatBlock value={totalEmps} label="Total Workforce" icon={Users} />
           <StatBlock value={presentCount} label="Present Today" icon={CheckCircle2} />
           <StatBlock value={lateCount} label="Late Arrivals" icon={AlertTriangle} />
@@ -65,15 +65,15 @@ export const Presence: React.FC = () => {
       {isHR && (
         <Panel padding="sm">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <Filter className="w-4 h-4" style={{ color: 'var(--df-text-muted)' }} />
-              <span className="text-xs font-semibold" style={{ color: 'var(--df-text-primary)' }}>Department:</span>
+              <span className="df-label" style={{ color: 'var(--df-text-primary)' }}>Department:</span>
             </div>
 
             <div className="flex items-center space-x-2 overflow-x-auto">
               <button
                 onClick={() => setSelectedDept('ALL')}
-                className="px-3 py-1 text-xs font-semibold transition-colors"
+                className="px-4 py-1.5 df-label font-bold transition-colors"
                 style={{
                   borderRadius: 'var(--df-radius)',
                   background: selectedDept === 'ALL' ? 'var(--df-accent)' : 'var(--df-bg)',
@@ -86,7 +86,7 @@ export const Presence: React.FC = () => {
                 <button
                   key={dept.id}
                   onClick={() => setSelectedDept(dept.id)}
-                  className="px-3 py-1 text-xs font-semibold transition-colors"
+                  className="px-4 py-1.5 df-label font-bold transition-colors"
                   style={{
                     borderRadius: 'var(--df-radius)',
                     background: selectedDept === dept.id ? 'var(--df-accent)' : 'var(--df-bg)',
@@ -108,7 +108,7 @@ export const Presence: React.FC = () => {
         headers={[...(isHR ? ['Employee'] : []), 'Date', 'Status', 'Check In', 'Check Out', 'Duration', 'Notes']}
         isEmpty={filteredAttendance.length === 0}
         emptyMessage="No attendance records found."
-        colSpan={7}
+        colSpan={isHR ? 7 : 6}
       >
         {filteredAttendance.map((att) => {
           const emp = mockEngine.getEmployeeById(att.employee_id);
@@ -121,43 +121,43 @@ export const Presence: React.FC = () => {
               onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
             >
               {isHR && (
-                <td className="px-5 py-3 font-medium" style={{ color: 'var(--df-text-primary)' }}>
-                  <div className="flex items-center space-x-2.5">
+                <td className="px-5 py-4 font-medium" style={{ color: 'var(--df-text-primary)' }}>
+                  <div className="flex items-center space-x-3">
                     <img
                       src={emp?.profile?.avatar_url}
                       alt={emp?.profile?.full_name}
-                      className="w-7 h-7 rounded-full object-cover"
+                      className="w-8 h-8 rounded-full object-cover"
                       style={{ border: '1px solid var(--df-border)' }}
                     />
                     <div>
-                      <div className="font-semibold">{emp?.profile?.full_name}</div>
-                      <div className="text-[10px]" style={{ color: 'var(--df-text-muted)' }}>{emp?.department?.code}</div>
+                      <div className="font-bold text-sm">{emp?.profile?.full_name}</div>
+                      <div className="text-[11px]" style={{ color: 'var(--df-text-muted)' }}>{emp?.department?.code}</div>
                     </div>
                   </div>
                 </td>
               )}
-              <td className="px-5 py-3 df-mono" style={{ color: 'var(--df-text-primary)' }}>{att.date}</td>
-              <td className="px-5 py-3">
+              <td className="px-5 py-4 df-mono text-sm" style={{ color: 'var(--df-text-primary)' }}>{att.date}</td>
+              <td className="px-5 py-4">
                 <StatusBadge
                   status={att.status === 'present' ? 'present' : att.status === 'late' ? 'late' : 'absent'}
                 >
                   {att.status}
                 </StatusBadge>
               </td>
-              <td className="px-5 py-3 df-mono">
+              <td className="px-5 py-4 df-mono text-sm">
                 {att.check_in
                   ? new Date(att.check_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                   : '--:--'}
               </td>
-              <td className="px-5 py-3 df-mono">
+              <td className="px-5 py-4 df-mono text-sm">
                 {att.check_out
                   ? new Date(att.check_out).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                   : '--:--'}
               </td>
-              <td className="px-5 py-3 df-mono">
+              <td className="px-5 py-4 df-mono text-sm">
                 {att.total_minutes ? `${Math.floor(att.total_minutes / 60)}h ${att.total_minutes % 60}m` : '--'}
               </td>
-              <td className="px-5 py-3 italic" style={{ color: 'var(--df-text-muted)' }}>
+              <td className="px-5 py-4 text-sm italic" style={{ color: 'var(--df-text-muted)' }}>
                 {att.notes || 'Normal workday entry'}
               </td>
             </tr>

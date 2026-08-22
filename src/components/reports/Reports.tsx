@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { BarChart3, Download, FileText, CheckCircle2, Table } from 'lucide-react';
 import { mockEngine } from '../../mock/mockEngine';
+import { PageHeader } from '../ui/PageHeader';
+import { Panel } from '../ui/Panel';
+import { Button } from '../ui/Button';
 
 export const Reports: React.FC = () => {
   const [exportMessage, setExportMessage] = useState<string>('');
@@ -48,99 +51,94 @@ export const Reports: React.FC = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Top Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Workforce Reports & Data Export</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Generate and export production analytics datasets for attendance, leave management, and payroll compliance.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Workforce Reports & Data Export"
+        description="Generate and export production analytics datasets for attendance, leave management, and payroll compliance."
+      />
 
       {exportMessage && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center space-x-2">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+        <div
+          className="p-4 flex items-center space-x-3 text-sm font-bold"
+          style={{
+            background: 'var(--df-status-present)',
+            color: '#ffffff',
+            borderRadius: 'var(--df-radius)',
+          }}
+        >
+          <CheckCircle2 className="w-5 h-5" />
           <span>{exportMessage}</span>
         </div>
       )}
 
       {/* Export Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between">
+        <Panel padding="lg" className="flex flex-col justify-between space-y-5">
           <div>
-            <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-bold mb-3">
-              <Table className="w-5 h-5" />
+            <div className="flex items-center space-x-3 mb-4">
+              <Table className="w-5 h-5" style={{ color: 'var(--df-text-primary)' }} />
+              <span className="df-label font-bold" style={{ color: 'var(--df-text-primary)' }}>DATASET</span>
             </div>
-            <h3 className="font-bold text-slate-900 text-base">Attendance Report</h3>
-            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            <h3 className="font-bold text-lg" style={{ color: 'var(--df-text-primary)' }}>Attendance Report</h3>
+            <p className="text-sm mt-2 leading-relaxed" style={{ color: 'var(--df-text-secondary)' }}>
               Export complete daily check-in, check-out timestamps, work durations, and absence exception records.
             </p>
           </div>
-          <button
-            onClick={() => exportCSV('attendance')}
-            className="w-full flex items-center justify-center space-x-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl transition-colors cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Export Attendance CSV</span>
-          </button>
-        </div>
+          <Button variant="primary" className="w-full" onClick={() => exportCSV('attendance')}>
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
+        </Panel>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between">
+        <Panel padding="lg" className="flex flex-col justify-between space-y-5">
           <div>
-            <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center font-bold mb-3">
-              <FileText className="w-5 h-5" />
+            <div className="flex items-center space-x-3 mb-4">
+              <FileText className="w-5 h-5" style={{ color: 'var(--df-text-primary)' }} />
+              <span className="df-label font-bold" style={{ color: 'var(--df-text-primary)' }}>DATASET</span>
             </div>
-            <h3 className="font-bold text-slate-900 text-base">Leave & Time Off Report</h3>
-            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            <h3 className="font-bold text-lg" style={{ color: 'var(--df-text-primary)' }}>Leave & Time Off</h3>
+            <p className="text-sm mt-2 leading-relaxed" style={{ color: 'var(--df-text-secondary)' }}>
               Export leave balances, approval logs, rejection reasons, and departmental time off metrics.
             </p>
           </div>
-          <button
-            onClick={() => exportCSV('leave')}
-            className="w-full flex items-center justify-center space-x-2 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs rounded-xl transition-colors cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Export Leave CSV</span>
-          </button>
-        </div>
+          <Button variant="primary" className="w-full" onClick={() => exportCSV('leave')}>
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
+        </Panel>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between">
+        <Panel padding="lg" className="flex flex-col justify-between space-y-5">
           <div>
-            <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center font-bold mb-3">
-              <BarChart3 className="w-5 h-5" />
+            <div className="flex items-center space-x-3 mb-4">
+              <BarChart3 className="w-5 h-5" style={{ color: 'var(--df-text-primary)' }} />
+              <span className="df-label font-bold" style={{ color: 'var(--df-text-primary)' }}>DATASET</span>
             </div>
-            <h3 className="font-bold text-slate-900 text-base">Payroll Audit Summary</h3>
-            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            <h3 className="font-bold text-lg" style={{ color: 'var(--df-text-primary)' }}>Payroll Audit</h3>
+            <p className="text-sm mt-2 leading-relaxed" style={{ color: 'var(--df-text-secondary)' }}>
               Export monthly compensation statements, allowances, tax deductions, and net payout records.
             </p>
           </div>
-          <button
-            onClick={() => exportCSV('payroll')}
-            className="w-full flex items-center justify-center space-x-2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl transition-colors cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Export Payroll CSV</span>
-          </button>
-        </div>
+          <Button variant="primary" className="w-full" onClick={() => exportCSV('payroll')}>
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
+        </Panel>
 
-        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4 flex flex-col justify-between">
+        <Panel padding="lg" className="flex flex-col justify-between space-y-5">
           <div>
-            <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center font-bold mb-3">
-              <Table className="w-5 h-5" />
+            <div className="flex items-center space-x-3 mb-4">
+              <Table className="w-5 h-5" style={{ color: 'var(--df-text-primary)' }} />
+              <span className="df-label font-bold" style={{ color: 'var(--df-text-primary)' }}>DATASET</span>
             </div>
-            <h3 className="font-bold text-slate-900 text-base">Workforce Roster</h3>
-            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            <h3 className="font-bold text-lg" style={{ color: 'var(--df-text-primary)' }}>Workforce Roster</h3>
+            <p className="text-sm mt-2 leading-relaxed" style={{ color: 'var(--df-text-secondary)' }}>
               Export active employee directory, employee codes, department allocations, and join dates.
             </p>
           </div>
-          <button
-            onClick={() => exportCSV('employees')}
-            className="w-full flex items-center justify-center space-x-2 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl transition-colors cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Export Roster CSV</span>
-          </button>
-        </div>
+          <Button variant="primary" className="w-full" onClick={() => exportCSV('employees')}>
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
+        </Panel>
       </div>
     </div>
   );

@@ -30,18 +30,18 @@ export const Signals: React.FC = () => {
   };
 
   return (
-    <div className="space-y-5 animate-in fade-in duration-200">
+    <div className="space-y-6 animate-in fade-in duration-200">
       {/* Toast */}
       {actionSuccess && (
         <div
-          className="p-3.5 flex items-center space-x-2 text-xs font-semibold"
+          className="p-4 flex items-center space-x-3 text-sm font-bold"
           style={{
             background: 'var(--df-accent)',
             color: '#ffffff',
             borderRadius: 'var(--df-radius)',
           }}
         >
-          <CheckCircle2 className="w-4 h-4" />
+          <CheckCircle2 className="w-5 h-5" />
           <span>{actionSuccess}</span>
         </div>
       )}
@@ -54,61 +54,61 @@ export const Signals: React.FC = () => {
       />
 
       {/* Signal Cards */}
-      <div className="space-y-5">
+      <div className="space-y-6">
         {signals.map((sig) => {
           const isHigh = sig.severity === 'high' || sig.severity === 'critical';
           return (
             <Panel key={sig.id} padding="lg">
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5"
                   style={{ borderBottom: '1px solid var(--df-border)' }}
                 >
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start space-x-4">
                     <div
-                      className="w-10 h-10 flex items-center justify-center shrink-0"
+                      className="w-12 h-12 flex items-center justify-center shrink-0"
                       style={{
                         borderRadius: 'var(--df-radius)',
                         background: isHigh ? 'var(--df-status-absent-subtle)' : 'var(--df-status-pending-subtle)',
                         color: isHigh ? 'var(--df-status-absent)' : 'var(--df-status-pending)',
                       }}
                     >
-                      <AlertTriangle className="w-5 h-5" />
+                      <AlertTriangle className="w-6 h-6" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm" style={{ color: 'var(--df-text-primary)' }}>{sig.title}</h3>
-                      <p className="df-mono text-xs" style={{ color: 'var(--df-text-muted)' }}>Signal: {sig.signal_type}</p>
+                      <h3 className="font-bold text-lg" style={{ color: 'var(--df-text-primary)' }}>{sig.title}</h3>
+                      <p className="df-mono text-xs mt-1" style={{ color: 'var(--df-text-muted)' }}>Signal: {sig.signal_type}</p>
                     </div>
                   </div>
 
-                  <StatusBadge status={isHigh ? 'high' : 'medium'}>
+                  <StatusBadge status={isHigh ? 'absent' : 'pending'}>
                     {sig.severity} Severity
                   </StatusBadge>
                 </div>
 
                 {/* Evidence Quadrants */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-sm">
                   <div
-                    className="p-4 space-y-1"
+                    className="p-5 space-y-2"
                     style={{
                       background: 'var(--df-bg)',
                       borderRadius: 'var(--df-radius)',
                       border: '1px solid var(--df-border)',
                     }}
                   >
-                    <span className="df-label block">1. Observation</span>
+                    <span className="df-label font-bold block" style={{ color: 'var(--df-text-primary)' }}>1. Observation</span>
                     <p className="font-medium leading-relaxed" style={{ color: 'var(--df-text-secondary)' }}>{sig.description}</p>
                   </div>
 
                   <div
-                    className="p-4 space-y-1"
+                    className="p-5 space-y-2"
                     style={{
                       background: 'var(--df-bg)',
                       borderRadius: 'var(--df-radius)',
                       border: '1px solid var(--df-border)',
                     }}
                   >
-                    <span className="df-label block">2. Impact</span>
+                    <span className="df-label font-bold block" style={{ color: 'var(--df-text-primary)' }}>2. Impact</span>
                     <p className="font-medium leading-relaxed" style={{ color: 'var(--df-text-secondary)' }}>
                       {sig.signal_type === 'LEAVE_CONCENTRATION'
                         ? 'High simultaneous leave requests reduce departmental bandwidth below safety threshold.'
@@ -117,22 +117,22 @@ export const Signals: React.FC = () => {
                   </div>
 
                   <div
-                    className="p-4 space-y-1"
+                    className="p-5 space-y-2"
                     style={{
                       background: 'var(--df-bg)',
                       borderRadius: 'var(--df-radius)',
                       border: '1px solid var(--df-border)',
                     }}
                   >
-                    <span className="df-label block">3. Evidence</span>
-                    <div className="df-mono text-[11px] space-y-0.5 pt-0.5" style={{ color: 'var(--df-text-secondary)' }}>
+                    <span className="df-label font-bold block" style={{ color: 'var(--df-text-primary)' }}>3. Evidence</span>
+                    <div className="df-mono text-xs space-y-1.5 pt-1" style={{ color: 'var(--df-text-secondary)' }}>
                       <div>Metadata: {JSON.stringify(sig.metadata || {})}</div>
                       <div>Detected: {new Date(sig.created_at).toLocaleString()}</div>
                     </div>
                   </div>
 
                   <div
-                    className="p-4 space-y-2 flex flex-col justify-between"
+                    className="p-5 space-y-4 flex flex-col justify-between"
                     style={{
                       background: 'var(--df-accent-subtle)',
                       borderRadius: 'var(--df-radius)',
@@ -140,17 +140,17 @@ export const Signals: React.FC = () => {
                     }}
                   >
                     <div>
-                      <span className="df-label block" style={{ color: 'var(--df-accent)' }}>4. Recommended Response</span>
-                      <p className="font-medium" style={{ color: 'var(--df-text-primary)' }}>
+                      <span className="df-label font-bold block mb-2" style={{ color: 'var(--df-accent)' }}>4. Recommended Response</span>
+                      <p className="font-bold text-base" style={{ color: 'var(--df-text-primary)' }}>
                         {sig.signal_type === 'LEAVE_CONCENTRATION'
                           ? 'Review pending decision queue to balance team capacity.'
                           : 'Inspect employee profile and schedule check-in.'}
                       </p>
                     </div>
 
-                    <Button variant="primary" onClick={() => handleExecuteAction(sig)} className="w-full">
+                    <Button variant="primary" size="lg" onClick={() => handleExecuteAction(sig)} className="w-full">
                       Execute HR Action
-                      <ArrowRight className="w-3.5 h-3.5 ml-2" />
+                      <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </div>
                 </div>

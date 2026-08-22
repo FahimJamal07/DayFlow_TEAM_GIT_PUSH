@@ -1,18 +1,28 @@
 import React from 'react';
+import { Panel } from './Panel';
 
-export const Skeleton: React.FC<{ className?: string }> = ({ className = 'h-4 bg-slate-200 rounded' }) => {
-  return <div className={`animate-pulse ${className}`} />;
+export const Skeleton: React.FC<{ className?: string; style?: React.CSSProperties }> = ({ className = '', style }) => {
+  return (
+    <div
+      className={`animate-pulse ${className}`}
+      style={{
+        background: 'var(--df-border)',
+        borderRadius: 'var(--df-radius)',
+        ...style
+      }}
+    />
+  );
 };
 
 export const CardSkeleton: React.FC = () => {
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4 animate-pulse">
+    <Panel padding="lg" className="animate-pulse space-y-4">
       <div className="flex items-center justify-between">
-        <Skeleton className="h-4 w-32 bg-slate-200" />
-        <Skeleton className="h-4 w-12 bg-slate-200" />
+        <Skeleton className="h-4 w-32" />
+        <Skeleton className="h-4 w-12" />
       </div>
-      <Skeleton className="h-8 w-24 bg-slate-200" />
-      <Skeleton className="h-2 w-full bg-slate-100" />
-    </div>
+      <Skeleton className="h-8 w-24" />
+      <Skeleton className="h-2 w-full" style={{ background: 'var(--df-bg)' }} />
+    </Panel>
   );
 };

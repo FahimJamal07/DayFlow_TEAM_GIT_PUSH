@@ -27,7 +27,7 @@ export const People: React.FC = () => {
   });
 
   return (
-    <div className="space-y-5 animate-in fade-in duration-200">
+    <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header */}
       <PageHeader
         title="People Directory"
@@ -35,7 +35,7 @@ export const People: React.FC = () => {
       />
 
       {/* Search & Filter Toolbar */}
-      <Panel padding="sm">
+      <Panel padding="md">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="relative flex-1 w-full">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--df-text-muted)' }} />
@@ -44,7 +44,7 @@ export const People: React.FC = () => {
               placeholder="Search by name, code, designation..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs font-medium focus:outline-none"
+              className="w-full pl-10 pr-4 py-2.5 text-sm font-medium focus:outline-none transition-colors"
               style={{
                 background: 'var(--df-bg)',
                 border: '1px solid var(--df-border)',
@@ -57,7 +57,7 @@ export const People: React.FC = () => {
           <div className="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto">
             <button
               onClick={() => setSelectedDept('ALL')}
-              className="px-3 py-1 text-xs font-semibold whitespace-nowrap"
+              className="px-4 py-2 df-label font-bold whitespace-nowrap transition-colors"
               style={{
                 borderRadius: 'var(--df-radius)',
                 background: selectedDept === 'ALL' ? 'var(--df-accent)' : 'var(--df-bg)',
@@ -70,7 +70,7 @@ export const People: React.FC = () => {
               <button
                 key={d.id}
                 onClick={() => setSelectedDept(d.id)}
-                className="px-3 py-1 text-xs font-semibold whitespace-nowrap"
+                className="px-4 py-2 df-label font-bold whitespace-nowrap transition-colors"
                 style={{
                   borderRadius: 'var(--df-radius)',
                   background: selectedDept === d.id ? 'var(--df-accent)' : 'var(--df-bg)',
@@ -85,80 +85,77 @@ export const People: React.FC = () => {
       </Panel>
 
       {/* Directory Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((emp) => (
-          <div
+          <Panel
             key={emp.id}
-            onClick={() => setSelectedEmp(emp)}
-            className="border transition-all cursor-pointer space-y-4 group p-5"
-            style={{
-              background: 'var(--df-surface)',
-              borderColor: 'var(--df-border)',
-              borderRadius: 'var(--df-radius)',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--df-accent)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--df-border)'; }}
+            padding="lg"
+            className="cursor-pointer group hover:border-accent transition-colors"
           >
-            <div className="flex items-start space-x-4">
-              <img
-                src={emp.profile?.avatar_url}
-                alt={emp.profile?.full_name}
-                className="w-12 h-12 rounded-full object-cover"
-                style={{ border: '2px solid var(--df-border)' }}
-              />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-sm truncate" style={{ color: 'var(--df-text-primary)' }}>{emp.profile?.full_name}</h3>
-                  <span
-                    className="text-[10px] df-mono px-2 py-0.5 font-semibold"
-                    style={{
-                      background: 'var(--df-bg)',
-                      borderRadius: 'var(--df-radius)',
-                      color: 'var(--df-text-secondary)',
-                    }}
-                  >
-                    {emp.employee_code}
-                  </span>
+            <div onClick={() => setSelectedEmp(emp)} className="h-full flex flex-col">
+              <div className="flex items-start space-x-4 mb-4">
+                <img
+                  src={emp.profile?.avatar_url}
+                  alt={emp.profile?.full_name}
+                  className="w-14 h-14 rounded-full object-cover"
+                  style={{ border: '1px solid var(--df-border)' }}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-base truncate" style={{ color: 'var(--df-text-primary)' }}>{emp.profile?.full_name}</h3>
+                  </div>
+                  <p className="text-sm font-semibold truncate mt-0.5" style={{ color: 'var(--df-accent)' }}>{emp.designation?.title}</p>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <span
+                      className="text-[10px] df-mono px-1.5 py-0.5 font-bold"
+                      style={{
+                        background: 'var(--df-bg)',
+                        borderRadius: 'var(--df-radius)',
+                        color: 'var(--df-text-secondary)',
+                      }}
+                    >
+                      {emp.employee_code}
+                    </span>
+                    <p className="text-xs font-medium truncate" style={{ color: 'var(--df-text-muted)' }}>{emp.department?.name}</p>
+                  </div>
                 </div>
-                <p className="text-xs font-medium truncate" style={{ color: 'var(--df-accent)' }}>{emp.designation?.title}</p>
-                <p className="text-[11px] font-medium" style={{ color: 'var(--df-text-muted)' }}>{emp.department?.name}</p>
               </div>
-            </div>
 
-            <div className="pt-3 space-y-1.5 text-xs" style={{ borderTop: '1px solid var(--df-border)', color: 'var(--df-text-secondary)' }}>
-              <div className="flex items-center space-x-2">
-                <Mail className="w-3.5 h-3.5" style={{ color: 'var(--df-text-muted)' }} />
-                <span className="truncate">{emp.profile?.email}</span>
+              <div className="pt-4 space-y-2 text-sm flex-1" style={{ borderTop: '1px solid var(--df-border)', color: 'var(--df-text-secondary)' }}>
+                <div className="flex items-center space-x-3">
+                  <Mail className="w-4 h-4" style={{ color: 'var(--df-text-muted)' }} />
+                  <span className="truncate">{emp.profile?.email}</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Phone className="w-4 h-4" style={{ color: 'var(--df-text-muted)' }} />
+                  <span>{emp.phone}</span>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Phone className="w-3.5 h-3.5" style={{ color: 'var(--df-text-muted)' }} />
-                <span>{emp.phone}</span>
-              </div>
-            </div>
 
-            <div className="pt-2 flex justify-between items-center text-xs font-semibold" style={{ color: 'var(--df-accent)' }}>
-              <span>View Profile</span>
-              <span>→</span>
+              <div className="pt-4 mt-auto flex justify-between items-center df-label font-bold" style={{ color: 'var(--df-accent)' }}>
+                <span>View Profile</span>
+                <span>→</span>
+              </div>
             </div>
-          </div>
+          </Panel>
         ))}
       </div>
 
       {/* Employee 360 Drawer */}
       {selectedEmp && (
         <div
-          className="fixed inset-0 z-50 flex justify-end backdrop-blur-xs"
-          style={{ background: 'rgba(0, 0, 0, 0.4)' }}
+          className="fixed inset-0 z-50 flex justify-end backdrop-blur-sm"
+          style={{ background: 'rgba(0, 0, 0, 0.6)' }}
         >
           <div
-            className="w-full max-w-xl h-full p-8 overflow-y-auto space-y-6 animate-in slide-in-from-right duration-200"
+            className="w-full max-w-xl h-full flex flex-col animate-in slide-in-from-right duration-200"
             style={{
               background: 'var(--df-surface)',
               borderLeft: '1px solid var(--df-border)',
               boxShadow: 'var(--df-shadow-overlay)',
             }}
           >
-            <div className="flex items-center justify-between pb-4" style={{ borderBottom: '1px solid var(--df-border)' }}>
+            <div className="p-5 flex items-center justify-between" style={{ borderBottom: '1px solid var(--df-border)' }}>
               <div className="flex items-center space-x-2">
                 <User className="w-5 h-5" style={{ color: 'var(--df-accent)' }} />
                 <h3 className="df-heading">Employee 360</h3>
@@ -168,81 +165,83 @@ export const People: React.FC = () => {
               </button>
             </div>
 
-            <div
-              className="flex items-center space-x-4 p-4"
-              style={{
-                background: 'var(--df-bg)',
-                borderRadius: 'var(--df-radius)',
-                border: '1px solid var(--df-border)',
-              }}
-            >
-              <img
-                src={selectedEmp.profile?.avatar_url}
-                alt={selectedEmp.profile?.full_name}
-                className="w-14 h-14 rounded-full object-cover"
-                style={{ border: '2px solid var(--df-border)' }}
-              />
-              <div>
-                <h4 className="text-lg font-bold" style={{ color: 'var(--df-text-primary)' }}>{selectedEmp.profile?.full_name}</h4>
-                <p className="text-xs font-semibold" style={{ color: 'var(--df-accent)' }}>{selectedEmp.designation?.title}</p>
-                <p className="text-xs" style={{ color: 'var(--df-text-muted)' }}>{selectedEmp.department?.name} • Code: {selectedEmp.employee_code}</p>
-              </div>
-            </div>
-
-            {/* 360 Sections */}
-            <div className="space-y-4 text-xs">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
               <div
-                className="p-4 space-y-2"
+                className="flex items-center space-x-5 p-5"
                 style={{
-                  background: 'var(--df-surface)',
+                  background: 'var(--df-bg)',
                   borderRadius: 'var(--df-radius)',
                   border: '1px solid var(--df-border)',
                 }}
               >
-                <h5 className="df-label">Overview & Contact</h5>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <span style={{ color: 'var(--df-text-muted)' }}>Email: </span>
-                    <span className="font-semibold" style={{ color: 'var(--df-text-primary)' }}>{selectedEmp.profile?.email}</span>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--df-text-muted)' }}>Phone: </span>
-                    <span className="font-semibold" style={{ color: 'var(--df-text-primary)' }}>{selectedEmp.phone}</span>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--df-text-muted)' }}>Join Date: </span>
-                    <span className="font-semibold" style={{ color: 'var(--df-text-primary)' }}>{selectedEmp.join_date}</span>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--df-text-muted)' }}>Status: </span>
-                    <span className="font-bold uppercase" style={{ color: 'var(--df-status-present)' }}>{selectedEmp.status}</span>
-                  </div>
+                <img
+                  src={selectedEmp.profile?.avatar_url}
+                  alt={selectedEmp.profile?.full_name}
+                  className="w-16 h-16 rounded-full object-cover"
+                  style={{ border: '2px solid var(--df-border)' }}
+                />
+                <div>
+                  <h4 className="text-xl font-bold" style={{ color: 'var(--df-text-primary)' }}>{selectedEmp.profile?.full_name}</h4>
+                  <p className="text-sm font-bold mt-1" style={{ color: 'var(--df-accent)' }}>{selectedEmp.designation?.title}</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--df-text-muted)' }}>{selectedEmp.department?.name} • Code: {selectedEmp.employee_code}</p>
                 </div>
               </div>
 
-              {isHR && (
+              {/* 360 Sections */}
+              <div className="space-y-5 text-sm">
                 <div
-                  className="p-4 space-y-2"
+                  className="p-5 space-y-4"
                   style={{
                     background: 'var(--df-surface)',
                     borderRadius: 'var(--df-radius)',
                     border: '1px solid var(--df-border)',
                   }}
                 >
-                  <h5 className="df-label">Confidential Compensation</h5>
+                  <h5 className="df-label font-bold" style={{ color: 'var(--df-text-primary)' }}>Overview & Contact</h5>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="block mb-1 text-xs" style={{ color: 'var(--df-text-muted)' }}>Email </span>
+                      <span className="font-semibold" style={{ color: 'var(--df-text-primary)' }}>{selectedEmp.profile?.email}</span>
+                    </div>
+                    <div>
+                      <span className="block mb-1 text-xs" style={{ color: 'var(--df-text-muted)' }}>Phone </span>
+                      <span className="font-semibold" style={{ color: 'var(--df-text-primary)' }}>{selectedEmp.phone}</span>
+                    </div>
+                    <div>
+                      <span className="block mb-1 text-xs" style={{ color: 'var(--df-text-muted)' }}>Join Date </span>
+                      <span className="font-semibold" style={{ color: 'var(--df-text-primary)' }}>{selectedEmp.join_date}</span>
+                    </div>
+                    <div>
+                      <span className="block mb-1 text-xs" style={{ color: 'var(--df-text-muted)' }}>Status </span>
+                      <span className="font-bold uppercase tracking-wide" style={{ color: 'var(--df-status-present)' }}>{selectedEmp.status}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {isHR && (
                   <div
-                    className="flex justify-between items-center p-3"
+                    className="p-5 space-y-4"
                     style={{
-                      background: 'var(--df-bg)',
+                      background: 'var(--df-surface)',
                       borderRadius: 'var(--df-radius)',
                       border: '1px solid var(--df-border)',
                     }}
                   >
-                    <span className="font-semibold" style={{ color: 'var(--df-text-secondary)' }}>Salary Grade:</span>
-                    <span className="df-mono font-bold" style={{ color: 'var(--df-text-primary)' }}>{selectedEmp.designation?.salary_grade}</span>
+                    <h5 className="df-label font-bold" style={{ color: 'var(--df-text-primary)' }}>Confidential Compensation</h5>
+                    <div
+                      className="flex justify-between items-center p-4"
+                      style={{
+                        background: 'var(--df-bg)',
+                        borderRadius: 'var(--df-radius)',
+                        border: '1px solid var(--df-border)',
+                      }}
+                    >
+                      <span className="font-bold" style={{ color: 'var(--df-text-secondary)' }}>Salary Grade:</span>
+                      <span className="df-mono font-bold text-lg" style={{ color: 'var(--df-text-primary)' }}>{selectedEmp.designation?.salary_grade}</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
