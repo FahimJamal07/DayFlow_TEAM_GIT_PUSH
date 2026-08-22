@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Panel } from '../ui/Panel';
 import { Button } from '../ui/Button';
 import { Users, Clock, Briefcase, DollarSign, Activity, ArrowRight, AlertTriangle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const Register: React.FC = () => {
   const { register, isAuthenticated } = useAuth();
@@ -15,6 +16,20 @@ export const Register: React.FC = () => {
   const [role, setRole] = useState<'employee' | 'hr'>('employee');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tickerIndex, setTickerIndex] = useState(0);
+
+  const tickerMessages = [
+    "AUG 22 · 09:02 · ANANYA SHARMA CHECKED IN",
+    "AUG 22 · 09:15 · LEAVE REQUEST APPROVED",
+    "AUG 22 · 10:00 · SYSTEM SYNC COMPLETED",
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTickerIndex((prev) => (prev + 1) % tickerMessages.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [tickerMessages.length]);
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />;
@@ -58,7 +73,7 @@ export const Register: React.FC = () => {
           borderColor: 'var(--df-border)'
         }}
       >
-        <div>
+        <div className="flex-1 flex flex-col justify-center">
           <div className="w-12 h-12 flex items-center justify-center font-bold text-2xl mb-12"
                style={{
                  borderRadius: 'var(--df-radius)',
@@ -71,37 +86,72 @@ export const Register: React.FC = () => {
           <h1 className="df-display text-5xl lg:text-6xl max-w-2xl leading-tight">
             Every workday, perfectly aligned.
           </h1>
-          <p className="df-heading text-xl mt-6 max-w-xl" style={{ color: 'var(--df-text-secondary)' }}>
+          <p className="df-heading text-xl mt-6 max-w-xl mb-10" style={{ color: 'var(--df-text-secondary)' }}>
             People. Presence. Decisions. One operating system.
           </p>
+          
+          {/* Activity Ticker */}
+          <div 
+            className="h-8 flex items-center px-4 max-w-md"
+            style={{ 
+              background: 'var(--df-bg)', 
+              borderRadius: 'var(--df-radius)',
+              border: '1px solid var(--df-border)'
+            }}
+          >
+            <div className="w-2 h-2 rounded-full mr-3" style={{ background: 'var(--df-accent)' }} />
+            <div className="relative flex-1 h-full flex items-center overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={tickerIndex}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  transition={{ duration: 0.3 }}
+                  className="df-mono text-[10px] absolute font-bold"
+                  style={{ color: 'var(--df-text-primary)' }}
+                >
+                  {tickerMessages[tickerIndex]}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="flex items-center space-x-4 max-w-full overflow-hidden">
-            {flowNodes.map((node, i) => (
-              <React.Fragment key={node.label}>
+        <div className="mb-16">
+          <div className="relative flex items-center justify-between w-full max-w-xl mt-8">
+            {/* Hairline track */}
+            <div className="absolute top-4 left-0 right-0 h-px" style={{ background: 'var(--df-border)' }} />
+            
+            {/* Traveling dot */}
+            <motion.div 
+              className="absolute top-4 h-1 w-1 rounded-full -translate-y-1/2 z-0" 
+              style={{ background: 'var(--df-accent)', boxShadow: '0 0 8px var(--df-accent)' }}
+              animate={{ left: ['0%', '100%'] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+            />
+            
+            {/* Nodes */}
+            {flowNodes.map(node => (
+              <div key={node.label} className="relative z-10 flex flex-col items-center bg-[var(--df-surface)] px-2">
                 <div 
-                  className="flex flex-col items-center justify-center p-4 transition-all"
-                  style={{
-                    background: 'var(--df-bg)',
-                    border: '1px solid var(--df-border)',
-                    borderRadius: 'var(--df-radius)',
-                    width: '100px',
-                  }}
+                  className="w-8 h-8 rounded-full border flex items-center justify-center mb-3 transition-colors hover:border-[var(--df-accent)]" 
+                  style={{ borderColor: 'var(--df-border)', background: 'var(--df-bg)' }}
                 >
-                  <node.icon className="w-5 h-5 mb-2" style={{ color: 'var(--df-text-primary)' }} />
-                  <span className="df-label text-[10px]">{node.label}</span>
+                  <node.icon className="w-4 h-4" style={{ color: 'var(--df-text-primary)' }} />
                 </div>
-                {i < flowNodes.length - 1 && (
-                  <ArrowRight className="w-4 h-4 shrink-0" style={{ color: 'var(--df-text-muted)' }} />
-                )}
-              </React.Fragment>
+                <span className="df-label text-[10px]" style={{ color: 'var(--df-text-secondary)' }}>{node.label}</span>
+              </div>
             ))}
           </div>
         </div>
         
-        <div className="df-mono text-[11px]" style={{ color: 'var(--df-text-muted)' }}>
-          Dayflow Technologies Inc. © {new Date().getFullYear()}
+        <div className="flex items-center justify-between w-full df-mono text-[11px]" style={{ color: 'var(--df-text-muted)' }}>
+          <span>Dayflow Technologies Inc. © {new Date().getFullYear()}</span>
+          <div className="flex items-center space-x-2">
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--df-status-present)' }} />
+            <span>All systems operational</span>
+          </div>
         </div>
       </div>
 
@@ -123,8 +173,8 @@ export const Register: React.FC = () => {
           </div>
 
           <div className="mb-8">
-            <h2 className="df-heading text-2xl">Create an account</h2>
-            <p className="df-body mt-2">Get started with Dayflow OS.</p>
+            <h2 className="df-heading text-2xl">Initialize Profile</h2>
+            <p className="text-sm mt-2" style={{ color: 'var(--df-text-secondary)' }}>Provision a new user account on the Dayflow network.</p>
           </div>
 
           <Panel padding="lg" className="mb-6">
