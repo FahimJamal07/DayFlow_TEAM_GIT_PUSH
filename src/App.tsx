@@ -12,6 +12,9 @@ import { People } from './components/people/People';
 import { Signals } from './components/signals/Signals';
 import { Reports } from './components/reports/Reports';
 import { AuditTrail } from './components/activity/AuditTrail';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { Login } from './components/auth/Login';
+import { Register } from './components/auth/Register';
 
 const RootRedirect: React.FC = () => {
   const { isHR } = useAuth();
@@ -21,7 +24,9 @@ const RootRedirect: React.FC = () => {
 export const AppContent: React.FC = () => {
   return (
     <Routes>
-      <Route path="/" element={<AppLayout />}>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route index element={<RootRedirect />} />
         <Route path="workday" element={<Workday />} />
         <Route path="presence" element={<Presence />} />

@@ -39,6 +39,7 @@ const STORAGE_KEYS = {
   PAYROLL: 'dayflow_payroll',
   EMPLOYEES: 'dayflow_employees',
   SIGNALS: 'dayflow_signals',
+  SESSION: 'dayflow_session',
 };
 
 // Helper for local storage persistence
@@ -107,6 +108,67 @@ class MockEngine {
   }
 
   // --- AUTH & ROLES ---
+  authenticate(email: string, password?: string): UserProfile | null {
+    // For demo purposes, we ignore the password and just match the email
+    const profile = INITIAL_PROFILES.find((p) => p.email.toLowerCase() === email.toLowerCase());
+    if (profile) {
+      saveStorage(STORAGE_KEYS.SESSION, { authenticated: true, profileId: profile.id });
+      this.setCurrentUser(profile.id);
+      return profile;
+    }
+    return null;
+  }
+
+  registerProfile(fullName: string, email: string, password?: string, role: 'employee' | 'hr' = 'employee'): UserProfile {
+    if (INITIAL_PROFILES.some((p) => p.email.toLowerCase() === email.toLowerCase())) {
+      throw new Error('Email already in use.');
+    }
+
+    const newId = 'f1' + Math.random().toString(36).substr(2, 9);
+    const newProfile: UserProfile = {
+      id: newId,
+      email: email,
+      full_name: fullName,
+      role: role,
+      created_at: new Date().toISOString(),
+      avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`,
+    };
+
+    INITIAL_PROFILES.push(newProfile);
+
+    // Assign default department and designation (e.g. Engineering / Software Engineer)
+    const dept = INITIAL_DEPARTMENTS[0]; 
+    const desig = INITIAL_DESIGNATIONS[0];
+    const empCode = `DF-10${Math.floor(Math.random() * 100) + 50}`;
+
+    const newEmployee: Employee = {
+      id: 'e1' + Math.random().toString(36).substr(2, 9),
+      profile_id: newId,
+      employee_code: empCode,
+      department_id: dept.id,
+      designation_id: desig.id,
+      join_date: new Date().toISOString().split('T')[0],
+      status: 'active',
+      profile: newProfile,
+      department: dept,
+      designation: desig,
+    };
+
+    this.employees.push(newEmployee);
+    saveStorage(STORAGE_KEYS.EMPLOYEES, this.employees);
+
+    this.logAudit('EMPLOYEE_REGISTERED', 'profile', newId, { email, role });
+
+    saveStorage(STORAGE_KEYS.SESSION, { authenticated: true, profileId: newId });
+    this.setCurrentUser(newId);
+
+    return newProfile;
+  }
+
+  logoutSession(): void {
+    localStorage.removeItem(STORAGE_KEYS.SESSION);
+  }
+
   getCurrentUser(): UserProfile {
     return this.currentUser;
   }

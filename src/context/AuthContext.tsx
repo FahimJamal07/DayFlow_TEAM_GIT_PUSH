@@ -12,6 +12,10 @@ interface AuthContextType {
   isHR: boolean;
   isAdmin: boolean;
   isEmployee: boolean;
+  isAuthenticated: boolean;
+  authError: string | null;
+  login: (email: string, password?: string) => Promise<{ success: boolean; error?: string }>;
+  register: (fullName: string, email: string, password?: string, role?: 'employee' | 'hr') => Promise<{ success: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,13 +24,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(null);
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     // Initial user load
-    const current = mockEngine.getCurrentUser();
-    const emp = mockEngine.getCurrentEmployee();
-    setUser(current);
-    setEmployee(emp || null);
+    const sessionStr = localStorage.getItem('dayflow_session');
+    if (sessionStr) {
+      try {
+        const session = JSON.parse(sessionStr);
+        if (session.authenticated && session.profileId) {
+          setIsAuthenticated(true);
+          const newProfile = mockEngine.setCurrentUser(session.profileId);
+          const emp = mockEngine.getCurrentEmployee();
+          setUser(newProfile);
+          setEmployee(emp || null);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (e) {
+        setIsAuthenticated(false);
+      }
+    } else {
+      setIsAuthenticated(false);
+    }
     setIsLoading(false);
   }, []);
 
@@ -39,9 +60,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   };
 
+  const login = async (email: string, password?: string) => {
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+      const profile = mockEngine.authenticate(email, password);
+      if (profile) {
+        setIsAuthenticated(true);
+        setUser(profile);
+        setEmployee(mockEngine.getCurrentEmployee() || null);
+        setIsLoading(false);
+        return { success: true };
+      } else {
+        setIsLoading(false);
+        setAuthError('Invalid email or password.');
+        return { success: false, error: 'Invalid email or password.' };
+      }
+    } catch (err: any) {
+      setIsLoading(false);
+      setAuthError(err.message || 'Login failed.');
+      return { success: false, error: err.message || 'Login failed.' };
+    }
+  };
+
+  const register = async (fullName: string, email: string, password?: string, role: 'employee' | 'hr' = 'employee') => {
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+      const profile = mockEngine.registerProfile(fullName, email, password, role);
+      setIsAuthenticated(true);
+      setUser(profile);
+      setEmployee(mockEngine.getCurrentEmployee() || null);
+      setIsLoading(false);
+      return { success: true };
+    } catch (err: any) {
+      setIsLoading(false);
+      setAuthError(err.message || 'Registration failed.');
+      return { success: false, error: err.message || 'Registration failed.' };
+    }
+  };
+
   const logout = () => {
-    // Reset to initial employee
-    loginAs('f1000000-0000-0000-0000-000000000001');
+    mockEngine.logoutSession();
+    setIsAuthenticated(false);
+    setUser(null);
+    setEmployee(null);
   };
 
   const role = user?.role || 'employee';
@@ -61,6 +124,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isHR,
         isAdmin,
         isEmployee,
+        isAuthenticated,
+        authError,
+        login,
+        register,
       }}
     >
       {children}

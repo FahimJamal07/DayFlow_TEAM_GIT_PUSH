@@ -1,18 +1,18 @@
 .counter {
   font-size: 16px;
   padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
+  border-radius: var(--df-radius);
+  color: var(--df-accent);
+  background: var(--df-accent-subtle);
   border: 2px solid transparent;
   transition: border-color 0.3s;
   margin-bottom: 24px;
 
   &:hover {
-    border-color: var(--accent-border);
+    border-color: var(--df-accent);
   }
   &:focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--df-accent);
     outline-offset: 2px;
   }
 }
@@ -72,7 +72,7 @@
 
 #next-steps {
   display: flex;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--df-border);
   text-align: left;
 
   & > div {
@@ -96,11 +96,11 @@
 }
 
 #docs {
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--df-border);
 
   @media (max-width: 1024px) {
     border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--df-border);
   }
 }
 
@@ -116,19 +116,20 @@
   }
 
   a {
-    color: var(--text-h);
+    color: var(--df-text-primary);
     font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
+    border-radius: var(--df-radius);
+    background: var(--df-surface);
     display: flex;
     padding: 6px 12px;
     align-items: center;
     gap: 8px;
     text-decoration: none;
     transition: box-shadow 0.3s;
+    border: 1px solid var(--df-border);
 
     &:hover {
-      box-shadow: var(--shadow);
+      box-shadow: var(--df-shadow-dropdown);
     }
     .button-icon {
       height: 18px;
@@ -155,7 +156,7 @@
 
 #spacer {
   height: 88px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--df-border);
   @media (max-width: 1024px) {
     height: 48px;
   }
@@ -175,10 +176,10 @@
 
   &::before {
     left: 0;
-    border-left-color: var(--border);
+    border-left-color: var(--df-border);
   }
   &::after {
     right: 0;
-    border-right-color: var(--border);
+    border-right-color: var(--df-border);
   }
 }

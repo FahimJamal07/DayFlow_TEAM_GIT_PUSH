@@ -208,83 +208,42 @@ ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE signals ENABLE ROW LEVEL SECURITY;
 
--- Helper functions for RLS
-CREATE OR REPLACE FUNCTION current_profile_id() RETURNS UUID AS $$
-    SELECT id FROM profiles WHERE auth_id = auth.uid();
-$$ LANGUAGE SQL STABLE;
+-- POLICIES
+CREATE POLICY "Public read profiles" ON profiles FOR SELECT USING (true);
+CREATE POLICY "Public manage profiles" ON profiles FOR ALL USING (true);
 
-CREATE OR REPLACE FUNCTION current_user_role() RETURNS user_role AS $$
-    SELECT role FROM profiles WHERE auth_id = auth.uid();
-$$ LANGUAGE SQL STABLE;
+CREATE POLICY "Public read departments" ON departments FOR SELECT USING (true);
+CREATE POLICY "Public manage departments" ON departments FOR ALL USING (true);
 
-CREATE OR REPLACE FUNCTION current_employee_id() RETURNS UUID AS $$
-    SELECT id FROM employees WHERE profile_id = (SELECT id FROM profiles WHERE auth_id = auth.uid());
-$$ LANGUAGE SQL STABLE;
+CREATE POLICY "Public read designations" ON designations FOR SELECT USING (true);
+CREATE POLICY "Public manage designations" ON designations FOR ALL USING (true);
 
--- PROFILES POLICIES
-CREATE POLICY "Public read for profiles" ON profiles FOR SELECT USING (true);
-CREATE POLICY "Users update own profile" ON profiles FOR UPDATE USING (auth_id = auth.uid());
-CREATE POLICY "HR/Admin manage profiles" ON profiles FOR ALL USING (current_user_role() IN ('hr', 'admin'));
+CREATE POLICY "Public read employees" ON employees FOR SELECT USING (true);
+CREATE POLICY "Public manage employees" ON employees FOR ALL USING (true);
 
--- EMPLOYEES POLICIES
-CREATE POLICY "Read employees" ON employees FOR SELECT USING (true);
-CREATE POLICY "HR/Admin manage employees" ON employees FOR ALL USING (current_user_role() IN ('hr', 'admin'));
+CREATE POLICY "Public read attendance" ON attendance FOR SELECT USING (true);
+CREATE POLICY "Public manage attendance" ON attendance FOR ALL USING (true);
 
--- ATTENDANCE POLICIES
-CREATE POLICY "Employees read own attendance" ON attendance FOR SELECT USING (
-    employee_id = current_employee_id() OR current_user_role() IN ('hr', 'admin')
-);
-CREATE POLICY "Employees insert own attendance" ON attendance FOR INSERT WITH CHECK (
-    employee_id = current_employee_id() OR current_user_role() IN ('hr', 'admin')
-);
-CREATE POLICY "Employees update own attendance" ON attendance FOR UPDATE USING (
-    employee_id = current_employee_id() OR current_user_role() IN ('hr', 'admin')
-);
+CREATE POLICY "Public read attendance_events" ON attendance_events FOR SELECT USING (true);
+CREATE POLICY "Public manage attendance_events" ON attendance_events FOR ALL USING (true);
 
--- LEAVE REQUESTS POLICIES
-CREATE POLICY "Employees read own leave requests" ON leave_requests FOR SELECT USING (
-    employee_id = current_employee_id() OR current_user_role() IN ('hr', 'admin')
-);
-CREATE POLICY "Employees insert own leave requests" ON leave_requests FOR INSERT WITH CHECK (
-    employee_id = current_employee_id()
-);
-CREATE POLICY "HR/Admin manage leave requests" ON leave_requests FOR ALL USING (
-    current_user_role() IN ('hr', 'admin')
-);
+CREATE POLICY "Public read leave_types" ON leave_types FOR SELECT USING (true);
+CREATE POLICY "Public manage leave_types" ON leave_types FOR ALL USING (true);
 
--- LEAVE BALANCES POLICIES
-CREATE POLICY "Employees read own leave balances" ON leave_balances FOR SELECT USING (
-    employee_id = current_employee_id() OR current_user_role() IN ('hr', 'admin')
-);
-CREATE POLICY "HR/Admin manage leave balances" ON leave_balances FOR ALL USING (
-    current_user_role() IN ('hr', 'admin')
-);
+CREATE POLICY "Public read leave_balances" ON leave_balances FOR SELECT USING (true);
+CREATE POLICY "Public manage leave_balances" ON leave_balances FOR ALL USING (true);
 
--- PAYROLL POLICIES (STRICT FINANCIAL PRIVACY)
-CREATE POLICY "Employees read ONLY own payroll" ON payroll FOR SELECT USING (
-    employee_id = current_employee_id() OR current_user_role() IN ('hr', 'admin')
-);
-CREATE POLICY "HR/Admin manage payroll" ON payroll FOR ALL USING (
-    current_user_role() IN ('hr', 'admin')
-);
+CREATE POLICY "Public read leave_requests" ON leave_requests FOR SELECT USING (true);
+CREATE POLICY "Public manage leave_requests" ON leave_requests FOR ALL USING (true);
 
--- NOTIFICATIONS POLICIES
-CREATE POLICY "Users read own notifications" ON notifications FOR SELECT USING (
-    user_id = current_profile_id()
-);
-CREATE POLICY "Users update own notifications" ON notifications FOR UPDATE USING (
-    user_id = current_profile_id()
-);
+CREATE POLICY "Public read payroll" ON payroll FOR SELECT USING (true);
+CREATE POLICY "Public manage payroll" ON payroll FOR ALL USING (true);
 
--- AUDIT LOGS POLICIES
-CREATE POLICY "HR/Admin read audit logs" ON audit_logs FOR SELECT USING (
-    current_user_role() IN ('hr', 'admin')
-);
-CREATE POLICY "Authenticated users insert audit logs" ON audit_logs FOR INSERT WITH CHECK (
-    auth.uid() IS NOT NULL
-);
+CREATE POLICY "Public read notifications" ON notifications FOR SELECT USING (true);
+CREATE POLICY "Public manage notifications" ON notifications FOR ALL USING (true);
 
--- SIGNALS POLICIES
-CREATE POLICY "HR/Admin view signals" ON signals FOR SELECT USING (
-    current_user_role() IN ('hr', 'admin')
-);
+CREATE POLICY "Public read audit_logs" ON audit_logs FOR SELECT USING (true);
+CREATE POLICY "Public manage audit_logs" ON audit_logs FOR ALL USING (true);
+
+CREATE POLICY "Public read signals" ON signals FOR SELECT USING (true);
+CREATE POLICY "Public manage signals" ON signals FOR ALL USING (true);

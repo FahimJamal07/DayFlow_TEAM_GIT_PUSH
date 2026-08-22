@@ -10,7 +10,10 @@ export const AppLayout: React.FC = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState<boolean>(false);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-100 font-sans antialiased text-slate-900">
+    <div
+      className="flex h-screen w-screen overflow-hidden font-sans antialiased"
+      style={{ background: 'var(--df-bg)', color: 'var(--df-text-primary)' }}
+    >
       {/* Role-aware Sidebar */}
       <Sidebar />
 
@@ -23,8 +26,11 @@ export const AppLayout: React.FC = () => {
         />
 
         {/* Dynamic Route View */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50">
-          <div className="max-w-7xl mx-auto space-y-6">
+        <main
+          className="flex-1 overflow-y-auto p-6 md:p-8"
+          style={{ background: 'var(--df-bg)' }}
+        >
+          <div className="max-w-7xl mx-auto space-y-5">
             <Outlet />
           </div>
         </main>

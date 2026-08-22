@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Users, Inbox, Sparkles, Activity, CheckCircle2, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Shield, Users, Inbox, Sparkles, Activity, AlertTriangle, ArrowRight, CheckCircle2, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { mockEngine } from '../../mock/mockEngine';
 import { Employee, LeaveRequest, WorkforceSignal, AttendanceRecord } from '../../types';
+import { PageHeader } from '../ui/PageHeader';
+import { Panel } from '../ui/Panel';
+import { StatusBadge } from '../ui/StatusBadge';
+import { Button } from '../ui/Button';
+import { StatBlock } from '../ui/StatBlock';
 
 export const ControlRoom: React.FC = () => {
   const navigate = useNavigate();
@@ -20,128 +25,176 @@ export const ControlRoom: React.FC = () => {
 
   const departments = mockEngine.getDepartments();
 
-  // Pulse matrix data calculation
   const presentCount = attendance.filter((a) => a.status === 'present').length;
   const lateCount = attendance.filter((a) => a.status === 'late').length;
   const totalEmps = employees.length;
+  const awayCount = totalEmps - (presentCount + lateCount);
+
+  const hasHighSeveritySignals = signals.some((s) => s.severity === 'high' || s.severity === 'critical');
+
+  const PulseMatrix = () => (
+    <Panel padding="lg">
+      <div className="flex items-center justify-between pb-4 mb-4" style={{ borderBottom: '1px solid var(--df-border)' }}>
+        <div className="flex items-center space-x-2">
+          <Activity className="w-5 h-5" style={{ color: 'var(--df-accent)' }} />
+          <h3 className="df-heading" style={{ fontSize: '1.125rem' }}>Workforce Pulse</h3>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        {departments.map((dept) => {
+          const deptEmps = employees.filter((e) => e.department_id === dept.id);
+          return (
+            <div
+              key={dept.id}
+              className="p-4 space-y-3"
+              style={{
+                background: 'var(--df-bg)',
+                borderRadius: 'var(--df-radius)',
+                border: '1px solid var(--df-border)',
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs" style={{ color: 'var(--df-text-primary)' }}>{dept.name}</span>
+                <span className="df-mono text-[10px]" style={{ color: 'var(--df-text-muted)' }}>{deptEmps.length}</span>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {deptEmps.map((emp) => {
+                  const att = attendance.find((a) => a.employee_id === emp.id);
+                  const status = att?.status || 'absent';
+                  
+                  let bg = 'var(--df-status-absent)';
+                  let color = '#ffffff';
+                  if (status === 'present') bg = 'var(--df-status-present)';
+                  if (status === 'late') bg = 'var(--df-status-pending)';
+
+                  return (
+                    <div
+                      key={emp.id}
+                      title={`${emp.profile?.full_name} (${status.toUpperCase()})`}
+                      className="w-7 h-7 flex items-center justify-center font-bold text-[10px] transition-all transform hover:scale-110 cursor-pointer"
+                      style={{
+                        borderRadius: 'var(--df-radius)',
+                        background: bg,
+                        color: color,
+                      }}
+                    >
+                      {emp.profile?.full_name.charAt(0)}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Panel>
+  );
+
+  const OperationalSignals = () => (
+    <Panel padding="lg">
+      <div className="flex items-center justify-between pb-4 mb-4" style={{ borderBottom: '1px solid var(--df-border)' }}>
+        <div className="flex items-center space-x-2">
+          <Sparkles className="w-5 h-5" style={{ color: 'var(--df-status-pending)' }} />
+          <h3 className="df-heading" style={{ fontSize: '1.125rem' }}>Operational Signals</h3>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {signals.map((sig) => (
+          <div
+            key={sig.id}
+            className="p-4 flex flex-col justify-between"
+            style={{
+              background: 'var(--df-bg)',
+              borderRadius: 'var(--df-radius)',
+              border: '1px solid var(--df-border)',
+            }}
+          >
+            <div>
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <div
+                    className="w-8 h-8 flex items-center justify-center shrink-0"
+                    style={{
+                      borderRadius: 'var(--df-radius)',
+                      background: sig.severity === 'high' ? 'var(--df-status-absent-subtle)' : 'var(--df-status-pending-subtle)',
+                      color: sig.severity === 'high' ? 'var(--df-status-absent)' : 'var(--df-status-pending)',
+                    }}
+                  >
+                    <AlertTriangle className="w-4 h-4" />
+                  </div>
+                  <h4 className="font-bold text-xs" style={{ color: 'var(--df-text-primary)' }}>{sig.title}</h4>
+                </div>
+                <StatusBadge status={sig.severity === 'high' ? 'high' : 'medium'}>
+                  {sig.severity}
+                </StatusBadge>
+              </div>
+              <p className="text-xs mt-2 leading-relaxed" style={{ color: 'var(--df-text-secondary)' }}>{sig.description}</p>
+            </div>
+            
+            <div className="mt-4 text-right pt-3" style={{ borderTop: '1px solid var(--df-border)' }}>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/signals')}>
+                Review Context <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Panel>
+  );
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
-        <div>
-          <div className="flex items-center space-x-2 text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">
-            <span>HR Command Center</span>
-            <span>•</span>
-            <span>Live Workforce Operations</span>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">HR Control Room</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Operational dashboard tracking workforce status, pending decision queues, and explainable intelligence signals.
-          </p>
-        </div>
+      <PageHeader
+        eyebrow="Control Center • Live Operations"
+        title="HR Control Room"
+        description="Operational dashboard tracking workforce status, pending decision queues, and intelligence signals."
+        actions={
+          pendingRequests.length > 0 ? (
+            <Button variant="primary" size="lg" onClick={() => navigate('/decisions')}>
+              <Inbox className="w-4 h-4 mr-2" />
+              Process Decisions ({pendingRequests.length})
+            </Button>
+          ) : undefined
+        }
+      />
 
-        {pendingRequests.length > 0 && (
-          <button
-            onClick={() => navigate('/decisions')}
-            className="flex items-center space-x-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-sm rounded-xl shadow-md transition-all cursor-pointer"
-          >
-            <Inbox className="w-4 h-4" />
-            <span>Process Decisions ({pendingRequests.length})</span>
-          </button>
-        )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <StatBlock 
+          label="Present & Late" 
+          value={`${presentCount + lateCount} / ${totalEmps}`} 
+          icon={CheckCircle2} 
+        />
+        <StatBlock 
+          label="Away or Absent" 
+          value={awayCount} 
+          icon={Users} 
+        />
+        <StatBlock 
+          label="Pending Decisions" 
+          value={pendingRequests.length} 
+          icon={Clock} 
+        />
+        <StatBlock 
+          label="Signals Detected" 
+          value={signals.length} 
+          icon={AlertTriangle} 
+        />
       </div>
 
-      {/* Signature Concept 1: Workforce Pulse Matrix */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div className="flex items-center space-x-2">
-            <Activity className="w-5 h-5 text-blue-600" />
-            <h3 className="font-bold text-slate-900 text-base">Workforce Pulse Matrix</h3>
-          </div>
-          <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-            {presentCount + lateCount}/{totalEmps} Employees Present Today
-          </span>
-        </div>
-
-        {/* Pulse Grid by Department */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {departments.map((dept) => {
-            const deptEmps = employees.filter((e) => e.department_id === dept.id);
-            return (
-              <div key={dept.id} className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-900 text-xs">{dept.name}</span>
-                  <span className="text-[10px] font-mono text-slate-500">{deptEmps.length} Members</span>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {deptEmps.map((emp) => {
-                    const att = attendance.find((a) => a.employee_id === emp.id);
-                    const status = att?.status || 'absent';
-                    return (
-                      <div
-                        key={emp.id}
-                        title={`${emp.profile?.full_name} (${status.toUpperCase()})`}
-                        className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-[10px] text-white transition-all transform hover:scale-110 cursor-pointer ${
-                          status === 'present'
-                            ? 'bg-emerald-600'
-                            : status === 'late'
-                            ? 'bg-amber-500'
-                            : 'bg-rose-500'
-                        }`}
-                      >
-                        {emp.profile?.full_name.charAt(0)}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Signature Concept 2: Explainable Signals Widget */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div className="flex items-center space-x-2">
-            <Sparkles className="w-5 h-5 text-amber-500" />
-            <h3 className="font-bold text-slate-900 text-base">Explainable Operational Signals</h3>
-          </div>
-          <span className="text-xs text-slate-400 font-mono">{signals.length} Signals Detected</span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {signals.map((sig) => (
-            <div
-              key={sig.id}
-              className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2 flex items-start space-x-3"
-            >
-              <div
-                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-bold text-xs ${
-                  sig.severity === 'high' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
-                }`}
-              >
-                <AlertTriangle className="w-4 h-4" />
-              </div>
-
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-slate-900 text-xs">{sig.title}</h4>
-                  <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-mono">
-                    {sig.severity}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-600 mt-1 leading-relaxed">{sig.description}</p>
-                <div className="mt-2 text-[11px] font-semibold text-blue-600 hover:underline inline-flex items-center cursor-pointer">
-                  Review Context <ArrowRight className="w-3 h-3 ml-1" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {hasHighSeveritySignals ? (
+        <>
+          <OperationalSignals />
+          <PulseMatrix />
+        </>
+      ) : (
+        <>
+          <PulseMatrix />
+          <OperationalSignals />
+        </>
+      )}
     </div>
   );
 };

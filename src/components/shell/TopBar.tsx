@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Search, Bell, Clock, ChevronDown, ShieldCheck, UserCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { mockEngine } from '../../mock/mockEngine';
+import { StatusBadge } from '../ui/StatusBadge';
+import { Panel } from '../ui/Panel';
 
 interface TopBarProps {
   onOpenCommandBar: () => void;
@@ -9,7 +11,7 @@ interface TopBarProps {
 }
 
 export const TopBar: React.FC<TopBarProps> = ({ onOpenCommandBar, onOpenNotifications }) => {
-  const { user, role, loginAs } = useAuth();
+  const { user, role, loginAs, logout } = useAuth();
   const [timeStr, setTimeStr] = useState<string>('');
   const [dateStr, setDateStr] = useState<string>('');
   const [unreadCount, setUnreadCount] = useState<number>(0);
@@ -37,48 +39,77 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenCommandBar, onOpenNotifica
   }, [user]);
 
   const demoAccounts = [
-    { id: 'f1000000-0000-0000-0000-000000000001', name: 'Ananya Sharma', role: 'Employee', title: 'Senior Frontend Engineer', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    { id: 'f1000000-0000-0000-0000-000000000002', name: 'Rahul Verma', role: 'HR Manager', title: 'Lead People Ops', color: 'bg-amber-50 text-amber-700 border-amber-200' },
-    { id: 'f1000000-0000-0000-0000-000000000003', name: 'Vikramaditya Singh', role: 'System Admin', title: 'VP of Operations', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+    { id: 'f1000000-0000-0000-0000-000000000001', name: 'Ananya Sharma', role: 'Employee', title: 'Senior Frontend Engineer', status: 'present' as const },
+    { id: 'f1000000-0000-0000-0000-000000000002', name: 'Rahul Verma', role: 'HR Manager', title: 'Lead People Ops', status: 'pending' as const },
+    { id: 'f1000000-0000-0000-0000-000000000003', name: 'Vikramaditya Singh', role: 'System Admin', title: 'VP of Operations', status: 'info' as const },
   ];
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 z-10">
+    <header
+      className="h-16 px-5 flex items-center justify-between shrink-0 z-10"
+      style={{
+        background: 'var(--df-surface)',
+        borderBottom: '1px solid var(--df-border)',
+      }}
+    >
       {/* Search Launcher */}
       <div className="flex items-center space-x-4 flex-1 max-w-md">
         <button
           onClick={onOpenCommandBar}
-          className="w-full flex items-center justify-between px-3.5 py-2 bg-slate-100/80 hover:bg-slate-100 border border-slate-200/80 rounded-lg text-slate-500 text-xs transition-colors group"
+          className="w-full flex items-center justify-between px-4 py-2 text-xs transition-colors group"
+          style={{
+            background: 'var(--df-bg)',
+            border: '1px solid var(--df-border)',
+            borderRadius: 'var(--df-radius)',
+            color: 'var(--df-text-muted)',
+          }}
         >
           <div className="flex items-center space-x-2">
-            <Search className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
-            <span className="font-medium text-slate-600">Quick Search employees, actions...</span>
+            <Search className="w-4 h-4" style={{ color: 'var(--df-text-muted)' }} />
+            <span className="df-label font-medium" style={{ color: 'var(--df-text-secondary)' }}>Search employees, actions...</span>
           </div>
-          <kbd className="px-2 py-0.5 bg-white border border-slate-200 rounded font-mono text-[10px] text-slate-500 shadow-2xs">
-            ⌘K / Ctrl+K
-          </kbd>
+          <div className="space-x-1 df-mono text-[10px]">
+            <kbd className="px-1.5 py-0.5 font-bold" style={{ background: 'var(--df-surface)', border: '1px solid var(--df-border)', borderRadius: '4px', color: 'var(--df-text-secondary)' }}>⌘K</kbd>
+          </div>
         </button>
       </div>
 
       {/* Right Utilities */}
       <div className="flex items-center space-x-4">
         {/* Time Indicator */}
-        <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 bg-slate-50 border border-slate-200/60 rounded-lg text-slate-600 text-xs font-mono">
-          <Clock className="w-3.5 h-3.5 text-blue-600" />
+        <div
+          className="hidden md:flex items-center space-x-2 px-3 py-1.5 df-mono text-xs"
+          style={{
+            background: 'var(--df-bg)',
+            border: '1px solid var(--df-border)',
+            borderRadius: 'var(--df-radius)',
+            color: 'var(--df-text-secondary)',
+          }}
+        >
+          <Clock className="w-3.5 h-3.5" style={{ color: 'var(--df-accent)' }} />
           <span>{dateStr}</span>
-          <span className="text-slate-300">|</span>
-          <span className="font-semibold text-slate-900">{timeStr}</span>
+          <span style={{ color: 'var(--df-border-strong)' }}>|</span>
+          <span className="font-bold" style={{ color: 'var(--df-text-primary)' }}>{timeStr}</span>
         </div>
 
         {/* Notifications Button */}
         <button
           onClick={onOpenNotifications}
-          className="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+          className="relative p-2.5 transition-colors"
+          style={{
+            background: 'var(--df-bg)',
+            border: '1px solid var(--df-border)',
+            color: 'var(--df-text-secondary)',
+            borderRadius: 'var(--df-radius)',
+          }}
           title="Notifications"
         >
-          <Bell className="w-5 h-5" />
+          <Bell className="w-4 h-4" />
           {unreadCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white animate-pulse" />
+            <span
+              className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full animate-pulse border-2 border-white"
+              style={{ background: 'var(--df-status-absent)', borderColor: 'var(--df-surface)' }}
+            />
           )}
         </button>
 
@@ -86,26 +117,47 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenCommandBar, onOpenNotifica
         <div className="relative">
           <button
             onClick={() => setShowRoleDropdown(!showRoleDropdown)}
-            className="flex items-center space-x-2.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors"
+            className="flex items-center space-x-2 px-3 py-2 transition-colors"
+            style={{
+              background: 'var(--df-bg)',
+              border: '1px solid var(--df-border)',
+              borderRadius: 'var(--df-radius)',
+            }}
           >
             <img
               src={user?.avatar_url}
               alt={user?.full_name}
-              className="w-7 h-7 rounded-full object-cover border border-slate-300"
+              className="w-7 h-7 rounded-full object-cover"
+              style={{ border: '1px solid var(--df-border)' }}
             />
             <div className="text-left hidden sm:block">
-              <p className="text-xs font-semibold text-slate-900 leading-tight">{user?.full_name}</p>
-              <p className="text-[10px] text-slate-500 font-medium capitalize">{role} Role</p>
+              <p className="df-label font-bold leading-tight" style={{ color: 'var(--df-text-primary)' }}>
+                {user?.full_name}
+              </p>
+              <p className="text-[10px] font-medium capitalize" style={{ color: 'var(--df-text-muted)' }}>
+                {role} Role
+              </p>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            <ChevronDown className="w-4 h-4" style={{ color: 'var(--df-text-muted)' }} />
           </button>
 
           {showRoleDropdown && (
-            <div className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-xl shadow-xl p-2 z-50 animate-in fade-in duration-150">
-              <div className="px-3 py-2 border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <div
+              className="absolute right-0 mt-2 w-64 p-2 z-50 animate-in fade-in duration-150"
+              style={{
+                background: 'var(--df-surface)',
+                border: '1px solid var(--df-border)',
+                borderRadius: 'var(--df-radius)',
+                boxShadow: 'var(--df-shadow-dropdown)',
+              }}
+            >
+              <div
+                className="px-3 py-2 df-label font-bold uppercase tracking-wider"
+                style={{ color: 'var(--df-text-muted)', borderBottom: '1px solid var(--df-border)' }}
+              >
                 Switch Demo User / Role
               </div>
-              <div className="py-1 space-y-1">
+              <div className="py-1 space-y-0.5">
                 {demoAccounts.map((acc) => (
                   <button
                     key={acc.id}
@@ -113,19 +165,34 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenCommandBar, onOpenNotifica
                       loginAs(acc.id);
                       setShowRoleDropdown(false);
                     }}
-                    className={`w-full text-left p-2 rounded-lg text-xs transition-colors flex items-center justify-between ${
-                      user?.id === acc.id ? 'bg-blue-50 border border-blue-200' : 'hover:bg-slate-50'
-                    }`}
+                    className="w-full text-left p-2 text-xs transition-colors flex items-center justify-between"
+                    style={{
+                      borderRadius: 'var(--df-radius)',
+                      background: user?.id === acc.id ? 'var(--df-accent-subtle)' : 'transparent',
+                      border: user?.id === acc.id ? '1px solid var(--df-accent)' : '1px solid transparent',
+                    }}
                   >
                     <div>
-                      <div className="font-semibold text-slate-900">{acc.name}</div>
-                      <div className="text-[10px] text-slate-500">{acc.title}</div>
+                      <div className="font-semibold" style={{ color: 'var(--df-text-primary)' }}>{acc.name}</div>
+                      <div className="text-[10px]" style={{ color: 'var(--df-text-muted)' }}>{acc.title}</div>
                     </div>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono border ${acc.color}`}>
-                      {acc.role}
-                    </span>
+                    <StatusBadge status={acc.status}>{acc.role}</StatusBadge>
                   </button>
                 ))}
+              </div>
+              <div
+                className="mt-1 pt-1"
+                style={{ borderTop: '1px solid var(--df-border)' }}
+              >
+                <button
+                  onClick={() => {
+                    logout();
+                  }}
+                  className="w-full text-left p-2 df-label font-semibold transition-colors hover:opacity-80 flex items-center space-x-2"
+                  style={{ color: 'var(--df-status-absent)', borderRadius: 'var(--df-radius)' }}
+                >
+                  Sign Out
+                </button>
               </div>
             </div>
           )}

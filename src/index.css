@@ -2,75 +2,155 @@
 
 @layer base {
   :root {
-    --background: 220 14% 96%;
-    --foreground: 224 71% 4%;
-    --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-    --primary: 220 90% 48%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 220 14% 90%;
-    --secondary-foreground: 220 50% 10%;
-    --muted: 220 14% 92%;
-    --muted-foreground: 220 10% 40%;
-    --accent: 220 20% 94%;
-    --accent-foreground: 220 50% 10%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 220 13% 88%;
-    --input: 220 13% 88%;
-    --ring: 220 90% 48%;
-    --radius: 0.5rem;
+    /* ── Dayflow Design Tokens ── */
 
-    /* Status Semantics */
-    --status-success: 142 71% 45%;
-    --status-warning: 38 92% 50%;
-    --status-danger: 0 84% 60%;
-    --status-info: 217 91% 60%;
+    /* Backgrounds */
+    --df-bg: #fafaf8;
+    --df-surface: #ffffff;
+    --df-surface-raised: #ffffff;
+
+    /* Borders */
+    --df-border: #e8e8e6;
+    --df-border-strong: #d4d4d2;
+
+    /* Typography */
+    --df-text-primary: #1a1a1a;
+    --df-text-secondary: #6b6b6b;
+    --df-text-muted: #9a9a9a;
+
+    /* Accent — deep indigo-violet (not generic blue) */
+    --df-accent: #5b5bd6;
+    --df-accent-hover: #4c4cc4;
+    --df-accent-subtle: rgba(91, 91, 214, 0.08);
+    --df-accent-text: #ffffff;
+
+    /* Status — desaturated, terminal-style */
+    --df-status-present: #3d9a50;
+    --df-status-present-subtle: rgba(61, 154, 80, 0.09);
+    --df-status-present-text: #2a6e38;
+
+    --df-status-pending: #c2850c;
+    --df-status-pending-subtle: rgba(194, 133, 12, 0.09);
+    --df-status-pending-text: #8a5e08;
+
+    --df-status-absent: #cd3d42;
+    --df-status-absent-subtle: rgba(205, 61, 66, 0.09);
+    --df-status-absent-text: #9c2b2f;
+
+    --df-status-info: #3b82c4;
+    --df-status-info-subtle: rgba(59, 130, 196, 0.09);
+    --df-status-info-text: #2a5d8f;
+
+    /* Radius — consistent, small, terminal feel */
+    --df-radius: 6px;
+    --df-radius-full: 9999px;
+
+    /* Shadows — reserved for overlays only */
+    --df-shadow-overlay: 0 16px 48px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+    --df-shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.06);
+
+    /* Sidebar */
+    --df-sidebar-bg: #161618;
+    --df-sidebar-text: #a1a1a6;
+    --df-sidebar-text-active: #ffffff;
+    --df-sidebar-border: rgba(255, 255, 255, 0.08);
+    --df-sidebar-hover: rgba(255, 255, 255, 0.06);
+  }
+
+  .dark {
+    --df-bg: #111113;
+    --df-surface: #191a1c;
+    --df-surface-raised: #222326;
+
+    --df-border: #2a2a2e;
+    --df-border-strong: #3a3a3e;
+
+    --df-text-primary: #ececec;
+    --df-text-secondary: #a0a0a0;
+    --df-text-muted: #6a6a6a;
+
+    --df-accent: #7c7cef;
+    --df-accent-hover: #8e8ef5;
+    --df-accent-subtle: rgba(124, 124, 239, 0.1);
+    --df-accent-text: #ffffff;
+
+    --df-status-present-subtle: rgba(61, 154, 80, 0.12);
+    --df-status-present-text: #5cbd6e;
+
+    --df-status-pending-subtle: rgba(194, 133, 12, 0.12);
+    --df-status-pending-text: #dba532;
+
+    --df-status-absent-subtle: rgba(205, 61, 66, 0.12);
+    --df-status-absent-text: #e5686c;
+
+    --df-status-info-subtle: rgba(59, 130, 196, 0.12);
+    --df-status-info-text: #6ba3d6;
+
+    --df-sidebar-bg: #0d0d0f;
+    --df-sidebar-border: rgba(255, 255, 255, 0.06);
   }
 
   body {
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: var(--df-bg);
+    color: var(--df-text-primary);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* Custom Scrollbars */
+/* ── Typography Scale ── */
+.df-display {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--df-text-primary);
+}
+
+.df-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--df-text-muted);
+}
+
+.df-heading {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--df-text-primary);
+}
+
+.df-body {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--df-text-secondary);
+}
+
+.df-mono {
+  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8125rem;
+}
+
+/* ── Custom Scrollbars ── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--df-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--df-border-strong);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Status Indicator Badges */
-.status-badge-present {
-  @apply bg-emerald-50 text-emerald-700 border border-emerald-200/60 font-medium;
-}
-
-.status-badge-absent {
-  @apply bg-rose-50 text-rose-700 border border-rose-200/60 font-medium;
-}
-
-.status-badge-pending {
-  @apply bg-amber-50 text-amber-700 border border-amber-200/60 font-medium;
-}
-
-.status-badge-info {
-  @apply bg-sky-50 text-sky-700 border border-sky-200/60 font-medium;
+  background: var(--df-text-muted);
 }

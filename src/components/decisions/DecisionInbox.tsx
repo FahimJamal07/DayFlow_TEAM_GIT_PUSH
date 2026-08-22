@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Inbox, CheckCircle2, XCircle, Sparkles, AlertCircle, ArrowRight, User, Calendar, MessageSquare, Shield, HelpCircle } from 'lucide-react';
+import { Inbox, CheckCircle2, XCircle, Sparkles, AlertTriangle, ArrowRight, User, Calendar, MessageSquare, Shield, HelpCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { mockEngine } from '../../mock/mockEngine';
 import { LeaveRequest } from '../../types';
+import { Panel } from '../ui/Panel';
+import { PageHeader } from '../ui/PageHeader';
+import { StatusBadge } from '../ui/StatusBadge';
+import { Button } from '../ui/Button';
+import { DataTable } from '../ui/DataTable';
 
 export const DecisionInbox: React.FC = () => {
   const { isHR } = useAuth();
@@ -14,6 +19,7 @@ export const DecisionInbox: React.FC = () => {
   const [rejectionReason, setRejectionReason] = useState<string>('');
   const [showRejectModal, setShowRejectModal] = useState<string | null>(null);
   const [decisionFeedback, setDecisionFeedback] = useState<string>('');
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
 
   useEffect(() => {
     refreshRequests();
@@ -21,8 +27,18 @@ export const DecisionInbox: React.FC = () => {
 
   const refreshRequests = () => {
     const all = mockEngine.getLeaveRequests();
-    setPendingRequests(all.filter((r) => r.status === 'pending'));
+    const pending = all.filter((r) => r.status === 'pending');
+    setPendingRequests(pending);
     setHistoryRequests(all.filter((r) => r.status !== 'pending'));
+    
+    // Auto-select first item if nothing is selected or selected item is gone
+    if (pending.length > 0) {
+      if (!selectedRequestId || !pending.find(r => r.id === selectedRequestId)) {
+        setSelectedRequestId(pending[0].id);
+      }
+    } else {
+      setSelectedRequestId(null);
+    }
   };
 
   const handleApprove = (id: string) => {
@@ -61,7 +77,6 @@ export const DecisionInbox: React.FC = () => {
     setTimeout(() => setDecisionFeedback(''), 4000);
   };
 
-  // Keyboard shortcut handler for Focus Mode
   useEffect(() => {
     if (!focusMode || pendingRequests.length === 0) return;
     const current = pendingRequests[focusIndex];
@@ -85,286 +100,362 @@ export const DecisionInbox: React.FC = () => {
 
   if (!isHR) {
     return (
-      <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center space-y-3">
-        <Shield className="w-10 h-10 text-rose-500 mx-auto" />
-        <h2 className="text-lg font-bold text-slate-900">HR Decision Access Required</h2>
-        <p className="text-sm text-slate-500 max-w-md mx-auto">
-          The Decision Inbox is restricted to authorized HR Managers and System Administrators. Please switch roles using the top bar switcher to review pending approvals.
-        </p>
-      </div>
+      <Panel padding="lg">
+        <div className="text-center space-y-3 py-8">
+          <Shield className="w-10 h-10 mx-auto" style={{ color: 'var(--df-status-absent)' }} />
+          <h2 className="df-heading">HR Decision Access Required</h2>
+          <p className="text-sm max-w-md mx-auto" style={{ color: 'var(--df-text-muted)' }}>
+            The Decision Inbox is restricted to authorized HR Managers and System Administrators. Please switch roles using the top bar switcher.
+          </p>
+        </div>
+      </Panel>
     );
   }
 
   const currentFocusRequest = pendingRequests[focusIndex];
+  const selectedRequest = pendingRequests.find(r => r.id === selectedRequestId) || pendingRequests[0];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200">
-      {/* Toast Feedback */}
+    <div className="space-y-5 animate-in fade-in duration-200">
       {decisionFeedback && (
-        <div className="p-4 bg-emerald-600 text-white rounded-xl shadow-lg flex items-center justify-between text-xs font-semibold animate-in slide-in-from-top duration-200">
+        <div
+          className="p-3.5 flex items-center justify-between text-xs font-semibold animate-in slide-in-from-top duration-200"
+          style={{
+            background: 'var(--df-status-present)',
+            color: '#ffffff',
+            borderRadius: 'var(--df-radius)',
+          }}
+        >
           <div className="flex items-center space-x-2">
             <CheckCircle2 className="w-4 h-4" />
             <span>{decisionFeedback}</span>
           </div>
-          <button onClick={() => setDecisionFeedback('')} className="font-bold hover:opacity-80">
-            ✕
-          </button>
+          <button onClick={() => setDecisionFeedback('')} className="font-bold hover:opacity-80">✕</button>
         </div>
       )}
 
-      {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs">
-        <div>
-          <div className="flex items-center space-x-2 text-xs font-semibold text-amber-600 uppercase tracking-wider mb-1">
-            <span>HR Control Queue</span>
-            <span>•</span>
-            <span>{pendingRequests.length} Decisions Pending</span>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Decision Inbox</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Review pending leave requests, inspect causality previews, and execute atomic approvals.
-          </p>
-        </div>
+      <PageHeader
+        eyebrow={`HR Queue • ${pendingRequests.length} Pending`}
+        title="Decision Inbox"
+        description="Review pending leave requests, inspect previews, and execute approvals."
+        actions={
+          pendingRequests.length > 0 ? (
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => { setFocusMode(true); setFocusIndex(0); }}
+            >
+              <Sparkles className="w-4 h-4 fill-current mr-2" />
+              Focus Mode ({pendingRequests.length})
+            </Button>
+          ) : undefined
+        }
+      />
 
-        {pendingRequests.length > 0 && (
-          <button
-            onClick={() => {
-              setFocusMode(true);
-              setFocusIndex(0);
-            }}
-            className="flex items-center space-x-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-xl shadow-md transition-all cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>Enter Focus Mode ({pendingRequests.length})</span>
-          </button>
-        )}
-      </div>
-
-      {/* Tab Controls */}
-      <div className="flex border-b border-slate-200">
+      <div className="flex" style={{ borderBottom: '1px solid var(--df-border)' }}>
         <button
           onClick={() => setActiveTab('pending')}
-          className={`pb-3 px-4 text-xs font-bold transition-colors border-b-2 ${
-            activeTab === 'pending'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-slate-400 hover:text-slate-600'
-          }`}
+          className="pb-3 px-4 df-label transition-colors border-b-2"
+          style={{
+            borderBottomColor: activeTab === 'pending' ? 'var(--df-accent)' : 'transparent',
+            color: activeTab === 'pending' ? 'var(--df-accent)' : 'var(--df-text-muted)',
+          }}
         >
-          Pending Queue ({pendingRequests.length})
+          Pending ({pendingRequests.length})
         </button>
         <button
           onClick={() => setActiveTab('history')}
-          className={`pb-3 px-4 text-xs font-bold transition-colors border-b-2 ${
-            activeTab === 'history'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-slate-400 hover:text-slate-600'
-          }`}
+          className="pb-3 px-4 df-label transition-colors border-b-2"
+          style={{
+            borderBottomColor: activeTab === 'history' ? 'var(--df-accent)' : 'transparent',
+            color: activeTab === 'history' ? 'var(--df-accent)' : 'var(--df-text-muted)',
+          }}
         >
-          Processed History ({historyRequests.length})
+          History ({historyRequests.length})
         </button>
       </div>
 
-      {/* Pending Queue List */}
       {activeTab === 'pending' && (
-        <div className="space-y-4">
+        <div className="flex flex-col lg:flex-row gap-5">
           {pendingRequests.length === 0 ? (
-            <div className="bg-white p-12 rounded-2xl border border-slate-200 text-center space-y-3">
-              <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-slate-900 text-base">Decision Inbox Clear!</h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                All pending leave requests and workforce corrections have been processed.
-              </p>
-            </div>
-          ) : (
-            pendingRequests.map((req) => {
-              const isUrgent = req.total_days >= 3;
-              return (
+            <Panel padding="lg" className="w-full">
+              <div className="text-center space-y-4 py-16">
                 <div
-                  key={req.id}
-                  className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6"
+                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
+                  style={{ background: 'var(--df-status-present-subtle)', color: 'var(--df-status-present)' }}
                 >
-                  <div className="flex items-start space-x-4">
-                    <img
-                      src={req.employee?.profile?.avatar_url}
-                      alt={req.employee?.profile?.full_name}
-                      className="w-12 h-12 rounded-full object-cover border border-slate-200"
-                    />
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="font-bold text-slate-900 text-base">
-                          {req.employee?.profile?.full_name}
-                        </span>
-                        <span className="text-xs px-2 py-0.5 rounded bg-slate-100 font-mono text-slate-600">
-                          {req.employee?.employee_code}
-                        </span>
-                        {isUrgent && (
-                          <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">
-                            Urgent ({req.total_days}d)
-                          </span>
-                        )}
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="df-heading" style={{ fontSize: '1.25rem' }}>Inbox Clear!</h3>
+                  <p className="text-sm mt-1" style={{ color: 'var(--df-text-muted)' }}>
+                    All pending requests have been processed.
+                  </p>
+                </div>
+              </div>
+            </Panel>
+          ) : (
+            <>
+              {/* Left Panel - Inbox List (~40%) */}
+              <Panel padding="none" className="w-full lg:w-[40%] flex-shrink-0 flex flex-col h-[600px] overflow-hidden">
+                <div className="p-4" style={{ borderBottom: '1px solid var(--df-border)' }}>
+                  <h3 className="df-label font-bold" style={{ color: 'var(--df-text-primary)' }}>Queue</h3>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  {pendingRequests.map((req) => {
+                    const isSelected = selectedRequestId === req.id;
+                    const isUrgent = req.total_days >= 3;
+                    return (
+                      <div
+                        key={req.id}
+                        onClick={() => setSelectedRequestId(req.id)}
+                        className="p-4 cursor-pointer transition-colors flex items-start space-x-3"
+                        style={{
+                          background: isSelected ? 'var(--df-surface)' : 'transparent',
+                          borderBottom: '1px solid var(--df-border)',
+                          borderLeft: isSelected ? '3px solid var(--df-accent)' : '3px solid transparent'
+                        }}
+                      >
+                        <img
+                          src={req.employee?.profile?.avatar_url}
+                          alt={req.employee?.profile?.full_name}
+                          className="w-10 h-10 rounded-full object-cover shrink-0"
+                          style={{ border: '1px solid var(--df-border)' }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-sm truncate pr-2" style={{ color: 'var(--df-text-primary)' }}>
+                              {req.employee?.profile?.full_name}
+                            </span>
+                            {isUrgent && <StatusBadge status="warning">Urgent</StatusBadge>}
+                          </div>
+                          <p className="text-xs truncate mt-0.5" style={{ color: 'var(--df-text-secondary)' }}>
+                            {req.leave_type?.name}
+                          </p>
+                          <p className="df-mono text-[10px] mt-1" style={{ color: 'var(--df-text-muted)' }}>
+                            {req.start_date} - {req.end_date}
+                          </p>
+                        </div>
                       </div>
+                    );
+                  })}
+                </div>
+              </Panel>
 
-                      <p className="text-xs text-slate-600">
-                        <span className="font-semibold text-slate-900">Requested: </span>
-                        {req.start_date} to {req.end_date} ({req.total_days} days) • {req.leave_type?.name}
-                      </p>
-
-                      <p className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 mt-2 max-w-xl">
-                        "{req.reason}"
-                      </p>
-
-                      {/* Causality Impact Preview */}
-                      <div className="mt-2 text-[11px] text-blue-700 bg-blue-50/70 p-2 rounded-md border border-blue-100 font-medium">
-                        ⚡ <span className="font-bold">Causality Preview:</span> Approving will deduct{' '}
-                        {req.total_days} day(s) from {req.employee?.profile?.full_name}'s {req.leave_type?.name} balance, trigger notification, and append an immutable audit log.
+              {/* Right Panel - Detail View (~60%) */}
+              {selectedRequest && (
+                <Panel padding="none" className="w-full lg:w-[60%] flex flex-col h-[600px] overflow-hidden">
+                  <div className="p-6 pb-5" style={{ borderBottom: '1px solid var(--df-border)' }}>
+                    <div className="flex items-center space-x-4 mb-6">
+                      <img
+                        src={selectedRequest.employee?.profile?.avatar_url}
+                        alt={selectedRequest.employee?.profile?.full_name}
+                        className="w-14 h-14 rounded-full object-cover shrink-0"
+                        style={{ border: '1px solid var(--df-border)' }}
+                      />
+                      <div>
+                        <h2 className="df-heading" style={{ fontSize: '1.25rem' }}>{selectedRequest.employee?.profile?.full_name}</h2>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="df-mono text-[11px] px-2 py-0.5 rounded" style={{ background: 'var(--df-surface)', color: 'var(--df-text-secondary)' }}>
+                            {selectedRequest.employee?.employee_code}
+                          </span>
+                          <span className="text-xs" style={{ color: 'var(--df-text-muted)' }}>
+                            {selectedRequest.employee?.designation?.title} • {selectedRequest.employee?.department?.name}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-2">
+                      <div>
+                        <p className="df-label" style={{ color: 'var(--df-text-muted)' }}>Leave Type</p>
+                        <p className="text-sm font-semibold mt-1" style={{ color: 'var(--df-text-primary)' }}>{selectedRequest.leave_type?.name}</p>
+                      </div>
+                      <div>
+                        <p className="df-label" style={{ color: 'var(--df-text-muted)' }}>Requested Dates</p>
+                        <p className="text-sm font-bold mt-1" style={{ color: 'var(--df-text-primary)' }}>
+                          {selectedRequest.start_date} to {selectedRequest.end_date} <span className="text-xs font-normal ml-1" style={{ color: 'var(--df-text-secondary)' }}>({selectedRequest.total_days} days)</span>
+                        </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-3 shrink-0">
-                    <button
-                      onClick={() => setShowRejectModal(req.id)}
-                      className="flex items-center space-x-1.5 px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold text-xs rounded-xl border border-rose-200 transition-colors cursor-pointer"
-                    >
-                      <XCircle className="w-4 h-4" />
-                      <span>Reject</span>
-                    </button>
+                  <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    <div>
+                      <h4 className="df-label mb-2" style={{ color: 'var(--df-text-primary)' }}>Reason for Request</h4>
+                      <p 
+                        className="text-sm p-4 leading-relaxed"
+                        style={{ 
+                          background: 'var(--df-surface)', 
+                          borderRadius: 'var(--df-radius)', 
+                          color: 'var(--df-text-secondary)',
+                          border: '1px solid var(--df-border)'
+                        }}
+                      >
+                        "{selectedRequest.reason}"
+                      </p>
+                    </div>
 
-                    <button
-                      onClick={() => handleApprove(req.id)}
-                      className="flex items-center space-x-1.5 px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-sm transition-colors cursor-pointer"
+                    <div
+                      className="p-4 text-xs font-medium space-y-1"
+                      style={{
+                        background: 'var(--df-status-info-subtle)',
+                        borderRadius: 'var(--df-radius)',
+                        border: '1px solid var(--df-status-info)',
+                        color: 'var(--df-status-info-text)',
+                      }}
                     >
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>Approve Request</span>
-                    </button>
+                      <div className="flex items-center space-x-2 mb-2 font-bold">
+                        <AlertTriangle className="w-4 h-4" />
+                        <span>System Impact Preview</span>
+                      </div>
+                      <p>• Approving deducts <strong>{selectedRequest.total_days} day(s)</strong> from the {selectedRequest.leave_type?.name} balance.</p>
+                      <p>• Requires manager signature for records.</p>
+                    </div>
                   </div>
-                </div>
-              );
-            })
+
+                  <div className="p-4 flex items-center justify-end space-x-3 bg-opacity-50" style={{ background: 'var(--df-surface)', borderTop: '1px solid var(--df-border)' }}>
+                     <Button variant="secondary" size="lg" onClick={() => setShowRejectModal(selectedRequest.id)}>
+                        <XCircle className="w-4 h-4 mr-2" style={{ color: 'var(--df-status-absent)' }} />
+                        Reject Request
+                      </Button>
+                      <Button variant="primary" size="lg" onClick={() => handleApprove(selectedRequest.id)}>
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Approve Request
+                      </Button>
+                  </div>
+                </Panel>
+              )}
+            </>
           )}
         </div>
       )}
 
-      {/* History Tab */}
       {activeTab === 'history' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100">
-              <tr>
-                <th className="px-6 py-3">Employee</th>
-                <th className="px-6 py-3">Leave Type</th>
-                <th className="px-6 py-3">Dates</th>
-                <th className="px-6 py-3">Decision</th>
-                <th className="px-6 py-3">Reviewed At</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              {historyRequests.map((req) => (
-                <tr key={req.id}>
-                  <td className="px-6 py-3.5 font-semibold text-slate-900">{req.employee?.profile?.full_name}</td>
-                  <td className="px-6 py-3.5">{req.leave_type?.name}</td>
-                  <td className="px-6 py-3.5 font-mono">{req.start_date} to {req.end_date}</td>
-                  <td className="px-6 py-3.5">
-                    <span
-                      className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase ${
-                        req.status === 'approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                      }`}
-                    >
-                      {req.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3.5 font-mono text-slate-400">
-                    {req.reviewed_at ? new Date(req.reviewed_at).toLocaleString() : 'System'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          headers={['Employee', 'Leave Type', 'Dates', 'Decision', 'Reviewed At']}
+          isEmpty={historyRequests.length === 0}
+          emptyMessage="No processed requests."
+        >
+          {historyRequests.map((req) => (
+            <tr key={req.id} style={{ borderBottom: '1px solid var(--df-border)' }}>
+              <td className="px-5 py-3 font-semibold" style={{ color: 'var(--df-text-primary)' }}>{req.employee?.profile?.full_name}</td>
+              <td className="px-5 py-3 font-medium" style={{ color: 'var(--df-text-primary)' }}>{req.leave_type?.name}</td>
+              <td className="px-5 py-3 df-mono text-[11px]">{req.start_date} to {req.end_date}</td>
+              <td className="px-5 py-3">
+                <StatusBadge status={req.status === 'approved' ? 'approved' : 'rejected'}>
+                  {req.status}
+                </StatusBadge>
+              </td>
+              <td className="px-5 py-3 df-mono text-[11px]" style={{ color: 'var(--df-text-muted)' }}>
+                {req.reviewed_at ? new Date(req.reviewed_at).toLocaleString() : 'System'}
+              </td>
+            </tr>
+          ))}
+        </DataTable>
       )}
 
-      {/* Focus Mode Overlay with Keyboard Shortcuts */}
+      {/* Focus Mode Overlay */}
       {focusMode && currentFocusRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 p-8 space-y-6 relative">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          style={{ background: 'rgba(0, 0, 0, 0.6)' }}
+        >
+          <div
+            className="w-full max-w-xl p-8 space-y-6 relative"
+            style={{
+              background: 'var(--df-surface)',
+              borderRadius: 'var(--df-radius)',
+              border: '1px solid var(--df-border)',
+              boxShadow: 'var(--df-shadow-overlay)',
+            }}
+          >
+            <div className="flex items-center justify-between pb-4" style={{ borderBottom: '1px solid var(--df-border)' }}>
               <div className="flex items-center space-x-2">
-                <Sparkles className="w-5 h-5 text-amber-500" />
-                <h3 className="font-bold text-slate-900 text-lg">Focus Mode Decision Review</h3>
+                <Sparkles className="w-5 h-5" style={{ color: 'var(--df-status-pending)' }} />
+                <h3 className="df-heading">Focus Mode</h3>
               </div>
-              <span className="text-xs font-mono bg-amber-50 text-amber-800 px-2.5 py-1 rounded-full font-bold">
-                Item {focusIndex + 1} of {pendingRequests.length}
-              </span>
+              <StatusBadge status="pending">
+                {focusIndex + 1} of {pendingRequests.length}
+              </StatusBadge>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div className="flex items-center space-x-4">
                 <img
                   src={currentFocusRequest.employee?.profile?.avatar_url}
                   alt={currentFocusRequest.employee?.profile?.full_name}
-                  className="w-16 h-16 rounded-full object-cover border-2 border-slate-200"
+                  className="w-14 h-14 rounded-full object-cover"
+                  style={{ border: '2px solid var(--df-border)' }}
                 />
                 <div>
-                  <h4 className="text-xl font-bold text-slate-900">
+                  <h4 className="text-lg font-bold" style={{ color: 'var(--df-text-primary)' }}>
                     {currentFocusRequest.employee?.profile?.full_name}
                   </h4>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs" style={{ color: 'var(--df-text-muted)' }}>
                     {currentFocusRequest.employee?.designation?.title} • {currentFocusRequest.employee?.department?.name}
                   </p>
                 </div>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-xs">
+              <div
+                className="p-5 space-y-3 text-xs"
+                style={{
+                  background: 'var(--df-bg)',
+                  borderRadius: 'var(--df-radius)',
+                  border: '1px solid var(--df-border)',
+                }}
+              >
                 <div className="flex justify-between">
-                  <span className="font-semibold text-slate-600">Leave Type:</span>
-                  <span className="font-bold text-slate-900">{currentFocusRequest.leave_type?.name}</span>
+                  <span className="df-label" style={{ color: 'var(--df-text-secondary)' }}>Leave Type:</span>
+                  <span className="font-bold" style={{ color: 'var(--df-text-primary)' }}>{currentFocusRequest.leave_type?.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-semibold text-slate-600">Requested Dates:</span>
-                  <span className="font-bold text-slate-900">
-                    {currentFocusRequest.start_date} to {currentFocusRequest.end_date} ({currentFocusRequest.total_days} Days)
+                  <span className="df-label" style={{ color: 'var(--df-text-secondary)' }}>Dates:</span>
+                  <span className="font-bold" style={{ color: 'var(--df-text-primary)' }}>
+                    {currentFocusRequest.start_date} to {currentFocusRequest.end_date} ({currentFocusRequest.total_days}d)
                   </span>
                 </div>
-                <div className="pt-2 border-t border-slate-200">
-                  <span className="font-semibold text-slate-600 block mb-1">Stated Reason:</span>
-                  <p className="text-slate-800 italic">"{currentFocusRequest.reason}"</p>
+                <div className="pt-3" style={{ borderTop: '1px solid var(--df-border)' }}>
+                  <span className="df-label block mb-2" style={{ color: 'var(--df-text-secondary)' }}>Reason:</span>
+                  <p className="italic leading-relaxed" style={{ color: 'var(--df-text-primary)' }}>"{currentFocusRequest.reason}"</p>
                 </div>
               </div>
 
-              {/* Keyboard Shortcut Guidance */}
-              <div className="p-3 bg-slate-100 rounded-xl flex items-center justify-between text-xs text-slate-600">
-                <span className="font-semibold">Keyboard Shortcuts Enabled:</span>
-                <div className="space-x-2 font-mono text-[11px]">
-                  <kbd className="px-2 py-0.5 bg-white border border-slate-300 rounded font-bold text-emerald-700">A</kbd> Approve
-                  <kbd className="px-2 py-0.5 bg-white border border-slate-300 rounded font-bold text-rose-700">R</kbd> Reject
-                  <kbd className="px-2 py-0.5 bg-white border border-slate-300 rounded font-bold text-slate-700">ESC</kbd> Exit
+              {/* Keyboard Hints */}
+              <div
+                className="p-3.5 flex items-center justify-between text-xs"
+                style={{
+                  background: 'var(--df-bg)',
+                  borderRadius: 'var(--df-radius)',
+                  color: 'var(--df-text-secondary)',
+                  border: '1px solid var(--df-border)',
+                }}
+              >
+                <span className="df-label">Keyboard:</span>
+                <div className="space-x-3 df-mono text-[11px]">
+                  <span className="inline-flex items-center"><kbd className="px-1.5 py-0.5 mr-1.5 font-bold" style={{ background: 'var(--df-surface)', border: '1px solid var(--df-status-present)', borderRadius: '3px', color: 'var(--df-status-present)' }}>A</kbd> Approve</span>
+                  <span className="inline-flex items-center"><kbd className="px-1.5 py-0.5 mr-1.5 font-bold" style={{ background: 'var(--df-surface)', border: '1px solid var(--df-status-absent)', borderRadius: '3px', color: 'var(--df-status-absent)' }}>R</kbd> Reject</span>
+                  <span className="inline-flex items-center"><kbd className="px-1.5 py-0.5 mr-1.5 font-bold" style={{ background: 'var(--df-surface)', border: '1px solid var(--df-border)', borderRadius: '3px', color: 'var(--df-text-secondary)' }}>ESC</kbd> Exit</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+            <div className="flex items-center justify-between pt-5" style={{ borderTop: '1px solid var(--df-border)' }}>
               <button
                 onClick={() => setFocusMode(false)}
-                className="text-xs font-semibold text-slate-500 hover:text-slate-700"
+                className="text-xs font-semibold hover:underline"
+                style={{ color: 'var(--df-text-muted)' }}
               >
                 Exit Focus Mode
               </button>
-
               <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => setShowRejectModal(currentFocusRequest.id)}
-                  className="px-4 py-2 bg-rose-50 text-rose-700 font-semibold text-xs rounded-xl border border-rose-200 cursor-pointer"
-                >
+                <Button variant="secondary" onClick={() => setShowRejectModal(currentFocusRequest.id)}>
                   Reject [R]
-                </button>
-                <button
-                  onClick={() => handleApprove(currentFocusRequest.id)}
-                  className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-md cursor-pointer"
-                >
-                  Approve Request [A]
-                </button>
+                </Button>
+                <Button variant="primary" onClick={() => handleApprove(currentFocusRequest.id)}>
+                  Approve [A]
+                </Button>
               </div>
             </div>
           </div>
@@ -373,30 +464,37 @@ export const DecisionInbox: React.FC = () => {
 
       {/* Reject Modal */}
       {showRejectModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 space-y-4">
-            <h3 className="font-bold text-slate-900 text-base">State Rejection Reason</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4 animate-in fade-in duration-200"
+          style={{ background: 'rgba(0, 0, 0, 0.6)' }}
+        >
+          <div
+            className="w-full max-w-md p-6 space-y-4"
+            style={{
+              background: 'var(--df-surface)',
+              borderRadius: 'var(--df-radius)',
+              boxShadow: 'var(--df-shadow-overlay)',
+              border: '1px solid var(--df-border)',
+            }}
+          >
+            <h3 className="df-heading" style={{ fontSize: '1.125rem' }}>State Rejection Reason</h3>
             <textarea
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
               rows={3}
-              placeholder="Provide constructive context for why this leave request is rejected..."
-              className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-rose-500"
+              placeholder="Provide context for rejection..."
+              className="w-full p-3 text-sm focus:outline-none"
+              style={{
+                background: 'var(--df-bg)',
+                border: '1px solid var(--df-border)',
+                borderRadius: 'var(--df-radius)',
+                color: 'var(--df-text-primary)',
+              }}
               autoFocus
             />
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setShowRejectModal(null)}
-                className="px-4 py-2 text-xs font-semibold text-slate-600"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleReject(showRejectModal)}
-                className="px-4 py-2 bg-rose-600 text-white text-xs font-semibold rounded-xl"
-              >
-                Confirm Rejection
-              </button>
+            <div className="flex justify-end space-x-3 pt-2">
+              <Button variant="ghost" onClick={() => setShowRejectModal(null)}>Cancel</Button>
+              <Button variant="destructive" onClick={() => handleReject(showRejectModal)}>Confirm Rejection</Button>
             </div>
           </div>
         </div>

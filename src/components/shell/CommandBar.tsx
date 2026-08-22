@@ -73,20 +73,35 @@ export const CommandBar: React.FC<CommandBarProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-      <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[80vh]">
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center pt-20 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+      style={{ background: 'rgba(0, 0, 0, 0.6)' }}
+    >
+      <div
+        className="w-full max-w-2xl overflow-hidden flex flex-col max-h-[80vh]"
+        style={{
+          background: 'var(--df-surface)',
+          borderRadius: 'var(--df-radius)',
+          border: '1px solid var(--df-border)',
+          boxShadow: 'var(--df-shadow-overlay)',
+        }}
+      >
         {/* Search Header */}
-        <div className="flex items-center px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-          <Search className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
+        <div
+          className="flex items-center px-5 py-4"
+          style={{ borderBottom: '1px solid var(--df-border)', background: 'var(--df-bg)' }}
+        >
+          <Search className="w-5 h-5 mr-3 shrink-0" style={{ color: 'var(--df-text-muted)' }} />
           <input
             type="text"
-            className="w-full bg-transparent text-slate-800 text-sm focus:outline-none placeholder-slate-400 font-medium"
+            className="w-full bg-transparent text-sm focus:outline-none font-medium"
+            style={{ color: 'var(--df-text-primary)' }}
             placeholder="Type a command or search employees, modules, decisions... (Press Esc to exit)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
           />
-          <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 rounded">
+          <button onClick={onClose} className="p-1" style={{ color: 'var(--df-text-muted)' }}>
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -96,23 +111,29 @@ export const CommandBar: React.FC<CommandBarProps> = ({ isOpen, onClose }) => {
           {/* Navigation Section */}
           {filteredNav.length > 0 && (
             <div>
-              <div className="px-3 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <div className="df-label px-4 py-2 font-bold" style={{ color: 'var(--df-text-secondary)' }}>
                 Modules & Shortcuts
               </div>
-              <div className="space-y-0.5">
+              <div className="space-y-1 px-2">
                 {filteredNav.map((item) => {
                   const Icon = item.icon;
                   return (
                     <button
                       key={item.path}
                       onClick={() => handleSelect(item.path)}
-                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition-colors group text-left"
+                      className="w-full flex items-center justify-between px-3 py-2.5 transition-colors group text-left"
+                      style={{
+                        borderRadius: 'var(--df-radius)',
+                        color: 'var(--df-text-primary)',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--df-bg)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
                       <div className="flex items-center space-x-3">
-                        <Icon className="w-4 h-4 text-slate-400 group-hover:text-blue-600" />
-                        <span className="font-medium">{item.label}</span>
+                        <Icon className="w-4 h-4" style={{ color: 'var(--df-text-muted)' }} />
+                        <span className="df-label font-bold">{item.label}</span>
                       </div>
-                      <span className="text-xs text-slate-400 group-hover:text-slate-600 flex items-center">
+                      <span className="text-xs flex items-center" style={{ color: 'var(--df-text-muted)' }}>
                         Go <ArrowRight className="w-3 h-3 ml-1" />
                       </span>
                     </button>
@@ -125,30 +146,37 @@ export const CommandBar: React.FC<CommandBarProps> = ({ isOpen, onClose }) => {
           {/* Employees Section */}
           {isHR && filteredEmployees.length > 0 && (
             <div>
-              <div className="px-3 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <div className="df-label px-4 py-2 font-bold" style={{ color: 'var(--df-text-secondary)' }}>
                 People Directory
               </div>
-              <div className="space-y-0.5">
+              <div className="space-y-1 px-2">
                 {filteredEmployees.map((emp) => (
                   <button
                     key={emp.id}
                     onClick={() => handleSelect(`/people?id=${emp.id}`)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-100 transition-colors group text-left"
+                    className="w-full flex items-center justify-between px-3 py-2.5 transition-colors group text-left"
+                    style={{
+                      borderRadius: 'var(--df-radius)',
+                      color: 'var(--df-text-primary)',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--df-bg)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                   >
                     <div className="flex items-center space-x-3">
                       <img
                         src={emp.profile?.avatar_url}
                         alt={emp.profile?.full_name}
-                        className="w-7 h-7 rounded-full object-cover border border-slate-200"
+                        className="w-8 h-8 rounded-full object-cover"
+                        style={{ border: '1px solid var(--df-border)' }}
                       />
                       <div>
-                        <div className="font-medium text-slate-800">{emp.profile?.full_name}</div>
-                        <div className="text-xs text-slate-500">
+                        <div className="df-label font-bold" style={{ color: 'var(--df-text-primary)' }}>{emp.profile?.full_name}</div>
+                        <div className="text-[11px]" style={{ color: 'var(--df-text-muted)' }}>
                           {emp.employee_code} • {emp.department?.name} • {emp.designation?.title}
                         </div>
                       </div>
                     </div>
-                    <span className="text-xs text-slate-400 group-hover:text-blue-600 font-medium">
+                    <span className="df-label font-bold" style={{ color: 'var(--df-accent)' }}>
                       View Profile
                     </span>
                   </button>
@@ -158,16 +186,33 @@ export const CommandBar: React.FC<CommandBarProps> = ({ isOpen, onClose }) => {
           )}
 
           {filteredNav.length === 0 && filteredEmployees.length === 0 && (
-            <div className="px-4 py-8 text-center text-slate-500 text-sm">
+            <div className="px-4 py-8 text-center df-label" style={{ color: 'var(--df-text-muted)' }}>
               No matching results found for "{query}"
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-2 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-          <span>Use <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-mono text-[10px]">↑</kbd> <kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-mono text-[10px]">↓</kbd> to navigate</span>
-          <span><kbd className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-slate-600 font-mono text-[10px]">ESC</kbd> to close</span>
+        <div
+          className="px-5 py-3 flex items-center justify-between text-xs"
+          style={{
+            background: 'var(--df-bg)',
+            borderTop: '1px solid var(--df-border)',
+            color: 'var(--df-text-muted)',
+          }}
+        >
+          <span className="flex items-center">
+            Use{' '}
+            <div className="space-x-1 df-mono text-[10px] mx-1">
+              <kbd className="px-1.5 py-0.5 font-bold inline-block" style={{ background: 'var(--df-surface)', border: '1px solid var(--df-border)', borderRadius: '4px', color: 'var(--df-text-secondary)' }}>↑</kbd>{' '}
+              <kbd className="px-1.5 py-0.5 font-bold inline-block" style={{ background: 'var(--df-surface)', border: '1px solid var(--df-border)', borderRadius: '4px', color: 'var(--df-text-secondary)' }}>↓</kbd>
+            </div>{' '}
+            to navigate
+          </span>
+          <span className="flex items-center">
+            <kbd className="px-1.5 py-0.5 mr-1 df-mono text-[10px] font-bold inline-block" style={{ background: 'var(--df-surface)', border: '1px solid var(--df-border)', borderRadius: '4px', color: 'var(--df-text-secondary)' }}>ESC</kbd>{' '}
+            to close
+          </span>
         </div>
       </div>
     </div>
