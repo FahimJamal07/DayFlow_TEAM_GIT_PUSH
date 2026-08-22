@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { CommandBar } from './CommandBar';
 import { NotificationDrawer } from './NotificationDrawer';
+import { ErrorBoundary } from '../ui/ErrorBoundary';
 
 export const AppLayout: React.FC = () => {
   const [isCommandBarOpen, setIsCommandBarOpen] = useState<boolean>(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState<boolean>(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
 
   return (
     <div
@@ -15,7 +22,10 @@ export const AppLayout: React.FC = () => {
       style={{ background: 'var(--df-bg)', color: 'var(--df-text-primary)' }}
     >
       {/* Role-aware Sidebar */}
-      <Sidebar />
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
@@ -23,6 +33,7 @@ export const AppLayout: React.FC = () => {
         <TopBar
           onOpenCommandBar={() => setIsCommandBarOpen(true)}
           onOpenNotifications={() => setIsNotificationsOpen(true)}
+          onOpenSidebar={() => setIsSidebarOpen(true)}
         />
 
         {/* Dynamic Route View */}
@@ -31,7 +42,9 @@ export const AppLayout: React.FC = () => {
           style={{ background: 'var(--df-bg)' }}
         >
           <div className="max-w-7xl mx-auto space-y-5">
-            <Outlet />
+            <ErrorBoundary>
+              <Outlet />
+            </ErrorBoundary>
           </div>
         </main>
       </div>

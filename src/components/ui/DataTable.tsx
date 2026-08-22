@@ -1,4 +1,5 @@
 import React from 'react';
+import { EmptyState } from './EmptyState';
 
 interface DataTableProps {
   headers: string[];
@@ -68,12 +69,11 @@ export const DataTable: React.FC<DataTableProps> = ({
           >
             {isEmpty ? (
               <tr>
-                <td
-                  colSpan={colSpan || headers.length}
-                  className="px-5 py-8 text-center"
-                  style={{ color: 'var(--df-text-muted)' }}
-                >
-                  {emptyMessage}
+                <td colSpan={colSpan || headers.length} className="p-0">
+                  <EmptyState 
+                    title="No records found" 
+                    description={emptyMessage} 
+                  />
                 </td>
               </tr>
             ) : (

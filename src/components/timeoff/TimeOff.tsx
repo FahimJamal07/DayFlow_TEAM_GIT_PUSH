@@ -9,12 +9,14 @@ import { StatusBadge } from '../ui/StatusBadge';
 import { DataTable } from '../ui/DataTable';
 import { Button } from '../ui/Button';
 import { StatBlock } from '../ui/StatBlock';
+import { CardSkeleton } from '../ui/Skeleton';
 
 export const TimeOff: React.FC = () => {
   const { employee, isHR } = useAuth();
   const [leaveBalances, setLeaveBalances] = useState<LeaveBalance[]>([]);
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Form states
   const [selectedType, setSelectedType] = useState<string>('c1000000-0000-0000-0000-000000000001');
@@ -28,12 +30,14 @@ export const TimeOff: React.FC = () => {
   }, [employee, isHR]);
 
   const refreshData = () => {
+    setIsLoading(true);
     if (employee) {
       setLeaveBalances(mockEngine.getLeaveBalances(employee.id));
       setLeaveRequests(mockEngine.getLeaveRequests(employee.id));
     } else if (isHR) {
       setLeaveRequests(mockEngine.getLeaveRequests());
     }
+    setTimeout(() => setIsLoading(false), 300);
   };
 
   const leaveTypes: LeaveType[] = [
@@ -93,6 +97,13 @@ export const TimeOff: React.FC = () => {
 
       {/* Leave Balances Cards */}
       {!isHR && (
+        isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+        ) : (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {leaveBalances.map((bal) => {
           const available = bal.total_allocated - bal.used - bal.pending;
@@ -141,9 +152,16 @@ export const TimeOff: React.FC = () => {
           );
         })}
       </div>
+        )
       )}
 
       {/* Leave Requests Table */}
+      {isLoading ? (
+        <div className="space-y-4">
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      ) : (
       <DataTable
         title="Leave Request History"
         count={`${leaveRequests.length} Requests`}
@@ -183,6 +201,7 @@ export const TimeOff: React.FC = () => {
           </tr>
         ))}
       </DataTable>
+      )}
 
       {/* Leave Request Submission Modal */}
       {showModal && (

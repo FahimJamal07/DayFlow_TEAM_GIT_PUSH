@@ -9,6 +9,7 @@ import { PageHeader } from '../ui/PageHeader';
 import { StatusBadge } from '../ui/StatusBadge';
 import { Button } from '../ui/Button';
 import { StatBlock } from '../ui/StatBlock';
+import { CardSkeleton } from '../ui/Skeleton';
 
 export const Workday: React.FC = () => {
   const { user, employee } = useAuth();
@@ -18,11 +19,14 @@ export const Workday: React.FC = () => {
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
   const [notes, setNotes] = useState<string>('');
   const [actionSuccess, setActionSuccess] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    setIsLoading(true);
     if (employee) {
       refreshData();
     }
+    setTimeout(() => setIsLoading(false), 300);
   }, [employee]);
 
   const refreshData = () => {
@@ -154,6 +158,17 @@ export const Workday: React.FC = () => {
         description={`${employee?.designation?.title} • ${employee?.department?.name} Department`}
       />
 
+      {isLoading ? (
+        <div className="space-y-5">
+          <CardSkeleton />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+        </div>
+      ) : (
+        <>
       <Panel padding="none" className="overflow-hidden">
         <div className="p-12 lg:p-16 flex flex-col items-center text-center">
           <div className="df-label uppercase tracking-widest mb-4" style={{ color: getStatusColor() }}>
@@ -346,6 +361,8 @@ export const Workday: React.FC = () => {
           </div>
         </Panel>
       </div>
+        </>
+      )}
     </div>
   );
 };

@@ -9,20 +9,24 @@ import { StatBlock } from '../ui/StatBlock';
 import { StatusBadge } from '../ui/StatusBadge';
 import { DataTable } from '../ui/DataTable';
 import { Button } from '../ui/Button';
+import { CardSkeleton } from '../ui/Skeleton';
 
 export const Presence: React.FC = () => {
   const { isHR, employee } = useAuth();
   const [attendanceList, setAttendanceList] = useState<AttendanceRecord[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedDept, setSelectedDept] = useState<string>('ALL');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    setIsLoading(true);
     if (isHR) {
       setAttendanceList(mockEngine.getAllAttendance());
       setEmployees(mockEngine.getEmployees());
     } else if (employee) {
       setAttendanceList(mockEngine.getEmployeeAttendanceHistory(employee.id));
     }
+    setTimeout(() => setIsLoading(false), 300);
   }, [isHR, employee]);
 
   const departments = mockEngine.getDepartments();
@@ -102,6 +106,12 @@ export const Presence: React.FC = () => {
       )}
 
       {/* Attendance History Table */}
+      {isLoading ? (
+        <div className="space-y-4">
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      ) : (
       <DataTable
         title="Attendance Records"
         count={`${filteredAttendance.length} Entries`}
@@ -164,6 +174,7 @@ export const Presence: React.FC = () => {
           );
         })}
       </DataTable>
+      )}
     </div>
   );
 };

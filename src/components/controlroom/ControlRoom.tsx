@@ -8,6 +8,7 @@ import { Panel } from '../ui/Panel';
 import { StatusBadge } from '../ui/StatusBadge';
 import { Button } from '../ui/Button';
 import { StatBlock } from '../ui/StatBlock';
+import { CardSkeleton, Skeleton } from '../ui/Skeleton';
 
 export const ControlRoom: React.FC = () => {
   const navigate = useNavigate();
@@ -15,12 +16,15 @@ export const ControlRoom: React.FC = () => {
   const [pendingRequests, setPendingRequests] = useState<LeaveRequest[]>([]);
   const [signals, setSignals] = useState<WorkforceSignal[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    setIsLoading(true);
     setEmployees(mockEngine.getEmployees());
     setPendingRequests(mockEngine.getLeaveRequests().filter((r) => r.status === 'pending'));
     setSignals(mockEngine.getSignals());
     setAttendance(mockEngine.getAllAttendance());
+    setTimeout(() => setIsLoading(false), 300);
   }, []);
 
   const departments = mockEngine.getDepartments();
@@ -164,27 +168,32 @@ export const ControlRoom: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatBlock 
           label="Present & Late" 
-          value={`${presentCount + lateCount} / ${totalEmps}`} 
+          value={isLoading ? 0 : `${presentCount + lateCount} / ${totalEmps}`} 
           icon={CheckCircle2} 
         />
         <StatBlock 
           label="Away or Absent" 
-          value={awayCount} 
+          value={isLoading ? 0 : awayCount} 
           icon={Users} 
         />
         <StatBlock 
           label="Pending Decisions" 
-          value={pendingRequests.length} 
+          value={isLoading ? 0 : pendingRequests.length} 
           icon={Clock} 
         />
         <StatBlock 
           label="Signals Detected" 
-          value={signals.length} 
+          value={isLoading ? 0 : signals.length} 
           icon={AlertTriangle} 
         />
       </div>
 
-      {hasHighSeveritySignals ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      ) : hasHighSeveritySignals ? (
         <>
           <OperationalSignals />
           <PulseMatrix />

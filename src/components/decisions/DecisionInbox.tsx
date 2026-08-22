@@ -8,6 +8,7 @@ import { PageHeader } from '../ui/PageHeader';
 import { StatusBadge } from '../ui/StatusBadge';
 import { Button } from '../ui/Button';
 import { DataTable } from '../ui/DataTable';
+import { CardSkeleton } from '../ui/Skeleton';
 
 export const DecisionInbox: React.FC = () => {
   const { isHR } = useAuth();
@@ -20,9 +21,12 @@ export const DecisionInbox: React.FC = () => {
   const [showRejectModal, setShowRejectModal] = useState<string | null>(null);
   const [decisionFeedback, setDecisionFeedback] = useState<string>('');
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    setIsLoading(true);
     refreshRequests();
+    setTimeout(() => setIsLoading(false), 300);
   }, []);
 
   const refreshRequests = () => {
@@ -176,6 +180,17 @@ export const DecisionInbox: React.FC = () => {
       </div>
 
       {activeTab === 'pending' && (
+        isLoading ? (
+          <div className="flex flex-col lg:flex-row gap-5">
+            <div className="w-full lg:w-[40%] space-y-4">
+              <CardSkeleton />
+              <CardSkeleton />
+            </div>
+            <div className="w-full lg:w-[60%] space-y-4">
+              <CardSkeleton />
+            </div>
+          </div>
+        ) : (
         <div className="flex flex-col lg:flex-row gap-5">
           {pendingRequests.length === 0 ? (
             <Panel padding="lg" className="w-full">
@@ -197,7 +212,7 @@ export const DecisionInbox: React.FC = () => {
           ) : (
             <>
               {/* Left Panel - Inbox List (~40%) */}
-              <Panel padding="none" className="w-full lg:w-[40%] flex-shrink-0 flex flex-col h-[600px] overflow-hidden">
+              <Panel padding="none" className="w-full lg:w-[40%] flex-shrink-0 flex flex-col h-[400px] lg:h-[600px] overflow-hidden">
                 <div className="p-4" style={{ borderBottom: '1px solid var(--df-border)' }}>
                   <h3 className="df-label font-bold" style={{ color: 'var(--df-text-primary)' }}>Queue</h3>
                 </div>
@@ -244,7 +259,7 @@ export const DecisionInbox: React.FC = () => {
 
               {/* Right Panel - Detail View (~60%) */}
               {selectedRequest && (
-                <Panel padding="none" className="w-full lg:w-[60%] flex flex-col h-[600px] overflow-hidden">
+                <Panel padding="none" className="w-full lg:w-[60%] flex flex-col min-h-[500px] lg:h-[600px] overflow-hidden">
                   <div className="p-6 pb-5" style={{ borderBottom: '1px solid var(--df-border)' }}>
                     <div className="flex items-center space-x-4 mb-6">
                       <img
@@ -329,9 +344,16 @@ export const DecisionInbox: React.FC = () => {
             </>
           )}
         </div>
+        )
       )}
 
       {activeTab === 'history' && (
+        isLoading ? (
+          <div className="space-y-4">
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+        ) : (
         <DataTable
           headers={['Employee', 'Leave Type', 'Dates', 'Decision', 'Reviewed At']}
           isEmpty={historyRequests.length === 0}
@@ -353,6 +375,7 @@ export const DecisionInbox: React.FC = () => {
             </tr>
           ))}
         </DataTable>
+        )
       )}
 
       {/* Focus Mode Overlay */}

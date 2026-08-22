@@ -12,6 +12,7 @@ import {
   Shield,
   Sparkles,
   LucideIcon,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { mockEngine } from '../../mock/mockEngine';
@@ -24,7 +25,12 @@ interface NavItem {
   badge?: number;
 }
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose }) => {
   const { user, isHR } = useAuth();
   const location = useLocation();
   const [pendingCount, setPendingCount] = useState<number>(0);
@@ -61,21 +67,33 @@ export const Sidebar: React.FC = () => {
   const activeLinks = isHR ? hrLinks : employeeLinks;
 
   return (
-    <aside
-      className="w-64 flex flex-col h-screen shrink-0 select-none"
+    <>
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-40 md:hidden" 
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar Container */}
+      <aside
+        className={`w-64 flex flex-col h-screen shrink-0 select-none fixed md:static z-50 transition-transform duration-300 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
       style={{
         background: 'var(--df-sidebar-bg)',
         color: 'var(--df-sidebar-text)',
         borderRight: '1px solid var(--df-sidebar-border)',
       }}
     >
-      {/* Brand Header */}
       <div
-        className="p-5 flex items-center space-x-3"
+        className="p-5 flex items-center justify-between"
         style={{ borderBottom: '1px solid var(--df-sidebar-border)' }}
       >
-        <div
-          className="df-display text-2xl font-black"
+        <div className="flex items-center space-x-3">
+          <div
+            className="df-display text-2xl font-black"
           style={{
             color: 'var(--df-accent)',
           }}
@@ -100,6 +118,17 @@ export const Sidebar: React.FC = () => {
             </span>
           </div>
         </div>
+        </div>
+        
+        {/* Mobile Close Button */}
+        {onClose && (
+          <button 
+            onClick={onClose} 
+            className="md:hidden p-1 rounded hover:bg-white/10 text-[var(--df-sidebar-text-active)]"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Role Badge Banner */}
@@ -189,5 +218,6 @@ export const Sidebar: React.FC = () => {
         </div>
       </div>
     </aside>
+    </>
   );
 };

@@ -4,12 +4,16 @@ import { mockEngine } from '../../mock/mockEngine';
 import { AuditLog } from '../../types';
 import { PageHeader } from '../ui/PageHeader';
 import { DataTable } from '../ui/DataTable';
+import { CardSkeleton } from '../ui/Skeleton';
 
 export const AuditTrail: React.FC = () => {
   const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    setIsLoading(true);
     setLogs(mockEngine.getAuditLogs());
+    setTimeout(() => setIsLoading(false), 300);
   }, []);
 
   return (
@@ -22,6 +26,12 @@ export const AuditTrail: React.FC = () => {
       />
 
       {/* Audit Log Table */}
+      {isLoading ? (
+        <div className="space-y-4">
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      ) : (
       <DataTable
         title="Activity Logs"
         count={`${logs.length} Recorded Events`}
@@ -66,6 +76,7 @@ export const AuditTrail: React.FC = () => {
           </tr>
         ))}
       </DataTable>
+      )}
     </div>
   );
 };

@@ -1,57 +1,36 @@
 -- DAYFLOW Master Seed Dataset
--- Fictional Organization: Dayflow Technologies Inc.
--- Note: All primary and foreign keys use standard, valid PostgreSQL UUID format (Hexadecimal: 0-9, a-f).
-
 -- 1. DEPARTMENTS
 INSERT INTO departments (id, code, name, description) VALUES
-('d1000000-0000-0000-0000-000000000001', 'ENG', 'Engineering', 'Software Development & Platform Engineering'),
-('d1000000-0000-0000-0000-000000000002', 'HR', 'Human Resources', 'People Operations, Culture & Compensation'),
-('d1000000-0000-0000-0000-000000000003', 'DES', 'Product Design', 'User Experience & Visual Interface Design'),
-('d1000000-0000-0000-0000-000000000004', 'FIN', 'Finance & Accounting', 'Financial Planning, Payroll & Auditing');
+${DEPARTMENTS.map(d => `('${d.id}', '${d.code}', '${d.name}', '${d.description}')`).join(',\n')};
 
 -- 2. DESIGNATIONS
 INSERT INTO designations (id, department_id, title, salary_grade) VALUES
-('b1000000-0000-0000-0000-000000000001', 'd1000000-0000-0000-0000-000000000001', 'Senior Frontend Engineer', 'L5-Eng'),
-('b1000000-0000-0000-0000-000000000002', 'd1000000-0000-0000-0000-000000000001', 'Lead Backend Architect', 'L6-Eng'),
-('b1000000-0000-0000-0000-000000000003', 'd1000000-0000-0000-0000-000000000002', 'HR Business Partner', 'L5-HR'),
-('b1000000-0000-0000-0000-000000000004', 'd1000000-0000-0000-0000-000000000003', 'Staff Product Designer', 'L6-Des'),
-('b1000000-0000-0000-0000-000000000005', 'd1000000-0000-0000-0000-000000000004', 'Senior Financial Analyst', 'L5-Fin');
+${DESIGNATIONS.map(d => `('${d.id}', '${d.department_id}', '${d.title}', '${d.salary_grade}')`).join(',\n')};
 
 -- 3. PROFILES
 INSERT INTO profiles (id, email, full_name, role, avatar_url) VALUES
-('f1000000-0000-0000-0000-000000000001', 'employee@dayflow.hr', 'Ananya Sharma', 'employee', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150'),
-('f1000000-0000-0000-0000-000000000002', 'hr@dayflow.hr', 'Rahul Verma', 'hr', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'),
-('f1000000-0000-0000-0000-000000000003', 'admin@dayflow.hr', 'Vikramaditya Singh', 'admin', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150'),
-('f1000000-0000-0000-0000-000000000004', 'priya.nair@dayflow.hr', 'Priya Nair', 'employee', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'),
-('f1000000-0000-0000-0000-000000000005', 'rohan.mehta@dayflow.hr', 'Rohan Mehta', 'employee', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150');
+${INITIAL_PROFILES.map(p => `('${p.id}', '${p.email}', ${escapeStr(p.full_name)}, '${p.role}', '${p.avatar_url}')`).join(',\n')};
 
 -- 4. EMPLOYEES
 INSERT INTO employees (id, profile_id, employee_code, department_id, designation_id, join_date, status, phone) VALUES
-('e1000000-0000-0000-0000-000000000001', 'f1000000-0000-0000-0000-000000000001', 'DF-1001', 'd1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000001', '2023-01-15', 'active', '+91 98765 43210'),
-('e1000000-0000-0000-0000-000000000002', 'f1000000-0000-0000-0000-000000000002', 'DF-1002', 'd1000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000003', '2022-06-01', 'active', '+91 98765 43211'),
-('e1000000-0000-0000-0000-000000000003', 'f1000000-0000-0000-0000-000000000003', 'DF-1000', 'd1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000002', '2021-03-10', 'active', '+91 98765 43212'),
-('e1000000-0000-0000-0000-000000000004', 'f1000000-0000-0000-0000-000000000004', 'DF-1004', 'd1000000-0000-0000-0000-000000000003', 'b1000000-0000-0000-0000-000000000004', '2023-04-01', 'active', '+91 98765 43213'),
-('e1000000-0000-0000-0000-000000000005', 'f1000000-0000-0000-0000-000000000005', 'DF-1005', 'd1000000-0000-0000-0000-000000000001', 'b1000000-0000-0000-0000-000000000002', '2023-09-15', 'active', '+91 98765 43214');
+${INITIAL_EMPLOYEES.map(e => `('${e.id}', '${e.profile_id}', '${e.employee_code}', '${e.department_id}', '${e.designation_id}', '${e.join_date}', '${e.status}', '${e.phone}')`).join(',\n')};
 
 -- 5. LEAVE TYPES
 INSERT INTO leave_types (id, name, code, max_days_per_year, requires_approval, is_paid) VALUES
-('c1000000-0000-0000-0000-000000000001', 'Casual Leave', 'CASUAL', 12, true, true),
-('c1000000-0000-0000-0000-000000000002', 'Sick Leave', 'SICK', 10, true, true),
-('c1000000-0000-0000-0000-000000000003', 'Earned Privilege Leave', 'EARNED', 15, true, true),
-('c1000000-0000-0000-0000-000000000004', 'Parental Leave', 'PARENTAL', 90, true, true);
+${LEAVE_TYPES.map(l => `('${l.id}', '${l.name}', '${l.code}', ${l.max_days_per_year}, ${l.requires_approval}, ${l.is_paid})`).join(',\n')};
 
--- 6. LEAVE BALANCES FOR ANANYA (EMPLOYEE)
-INSERT INTO leave_balances (employee_id, leave_type_id, total_allocated, used, pending, year) VALUES
-('e1000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000001', 12.0, 3.0, 1.0, 2026),
-('e1000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000002', 10.0, 1.0, 0.0, 2026),
-('e1000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000003', 15.0, 2.0, 0.0, 2026);
+-- 6. LEAVE BALANCES
+INSERT INTO leave_balances (id, employee_id, leave_type_id, total_allocated, used, pending, year) VALUES
+${LEAVE_BALANCES.map(b => `('${b.id}', '${b.employee_id}', '${b.leave_type_id}', ${b.total_allocated}, ${b.used}, ${b.pending}, ${b.year})`).join(',\n')};
 
--- 7. PENDING LEAVE REQUEST FOR HR DECISION INBOX DEMO
+-- 7. LEAVE REQUESTS
 INSERT INTO leave_requests (id, employee_id, leave_type_id, start_date, end_date, total_days, reason, status, created_at) VALUES
-('a1000000-0000-0000-0000-000000000001', 'e1000000-0000-0000-0000-000000000001', 'c1000000-0000-0000-0000-000000000001', '2026-08-28', '2026-08-29', 2.0, 'Family obligation and medical checkup', 'pending', NOW()),
-('a1000000-0000-0000-0000-000000000002', 'e1000000-0000-0000-0000-000000000005', 'c1000000-0000-0000-0000-000000000003', '2026-09-01', '2026-09-05', 5.0, 'Annual planned vacation', 'pending', NOW());
+${LEAVE_REQUESTS.map(r => `('${r.id}', '${r.employee_id}', '${r.leave_type_id}', '${r.start_date}', '${r.end_date}', ${r.total_days}, ${escapeStr(r.reason)}, '${r.status}', '${r.created_at}')`).join(',\n')};
 
--- 8. SIGNALS FOR HR WORKFORCE INTELLIGENCE
-INSERT INTO signals (id, signal_type, title, description, severity, employee_id, department_id) VALUES
-('a2000000-0000-0000-0000-000000000001', 'LATE_CHECKIN_PATTERN', 'Repeated Late Arrivals', 'Rohan Mehta has checked in after 10:15 AM on 4 out of the last 5 working days.', 'medium', 'e1000000-0000-0000-0000-000000000005', 'd1000000-0000-0000-0000-000000000001'),
-('a2000000-0000-0000-0000-000000000002', 'LEAVE_CONCENTRATION', 'High Team Absence Overlap', '2 of 4 Product Design team members have requested leave for the week of Sept 1st.', 'high', NULL, 'd1000000-0000-0000-0000-000000000003');
+-- 8. ATTENDANCE
+INSERT INTO attendance (id, employee_id, date, status, check_in, check_out, total_minutes, break_minutes, overtime_minutes) VALUES
+${ATTENDANCE.map(a => `('${a.id}', '${a.employee_id}', '${a.date}', '${a.status}', '${a.check_in}', ${a.check_out ? `'${a.check_out}'` : 'NULL'}, ${a.total_minutes}, ${a.break_minutes}, ${a.overtime_minutes})`).join(',\n')};
+
+-- 9. PAYROLL
+INSERT INTO payroll (id, employee_id, pay_period_month, pay_period_year, base_salary, deductions, bonuses, net_salary, status) VALUES
+${PAYROLL.map(p => `('${p.id}', '${p.employee_id}', ${p.pay_period_month}, ${p.pay_period_year}, ${p.base_salary}, ${p.deductions}, ${p.bonuses}, ${p.net_salary}, '${p.status}')`).join(',\n')};

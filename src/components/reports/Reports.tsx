@@ -4,9 +4,15 @@ import { mockEngine } from '../../mock/mockEngine';
 import { PageHeader } from '../ui/PageHeader';
 import { Panel } from '../ui/Panel';
 import { Button } from '../ui/Button';
+import { CardSkeleton } from '../ui/Skeleton';
 
 export const Reports: React.FC = () => {
   const [exportMessage, setExportMessage] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  React.useEffect(() => {
+    setTimeout(() => setIsLoading(false), 300);
+  }, []);
 
   const exportCSV = (type: string) => {
     let data: any[] = [];
@@ -71,6 +77,14 @@ export const Reports: React.FC = () => {
       )}
 
       {/* Export Action Cards */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Panel padding="lg" className="flex flex-col justify-between space-y-5">
           <div>
@@ -140,6 +154,7 @@ export const Reports: React.FC = () => {
           </Button>
         </Panel>
       </div>
+      )}
     </div>
   );
 };

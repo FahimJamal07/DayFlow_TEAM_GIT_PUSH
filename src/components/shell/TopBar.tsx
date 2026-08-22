@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Bell, Clock, ChevronDown, ShieldCheck, UserCheck } from 'lucide-react';
+import { Search, Bell, Clock, ChevronDown, ShieldCheck, UserCheck, Menu } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { mockEngine } from '../../mock/mockEngine';
 import { StatusBadge } from '../ui/StatusBadge';
@@ -8,9 +8,10 @@ import { Panel } from '../ui/Panel';
 interface TopBarProps {
   onOpenCommandBar: () => void;
   onOpenNotifications: () => void;
+  onOpenSidebar?: () => void;
 }
 
-export const TopBar: React.FC<TopBarProps> = ({ onOpenCommandBar, onOpenNotifications }) => {
+export const TopBar: React.FC<TopBarProps> = ({ onOpenCommandBar, onOpenNotifications, onOpenSidebar }) => {
   const { user, role, loginAs, logout } = useAuth();
   const [timeStr, setTimeStr] = useState<string>('');
   const [dateStr, setDateStr] = useState<string>('');
@@ -53,8 +54,17 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenCommandBar, onOpenNotifica
         borderBottom: '1px solid var(--df-border)',
       }}
     >
-      {/* Search Launcher */}
-      <div className="flex items-center space-x-4 flex-1 max-w-md">
+      {/* Search Launcher & Mobile Menu */}
+      <div className="flex items-center space-x-2 sm:space-x-4 flex-1 max-w-md">
+        {onOpenSidebar && (
+          <button 
+            onClick={onOpenSidebar}
+            className="md:hidden p-2 rounded transition-colors hover:bg-[var(--df-border)]"
+            style={{ color: 'var(--df-text-primary)' }}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
         <button
           onClick={onOpenCommandBar}
           className="w-full flex items-center justify-between px-4 py-2 text-xs transition-colors group"

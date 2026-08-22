@@ -9,14 +9,18 @@ import { DataTable } from '../ui/DataTable';
 import { Button } from '../ui/Button';
 import { StatBlock } from '../ui/StatBlock';
 import { Panel } from '../ui/Panel';
+import { CardSkeleton } from '../ui/Skeleton';
 
 export const Payroll: React.FC = () => {
   const { isHR, user } = useAuth();
   const [payrollList, setPayrollList] = useState<PayrollRecord[]>([]);
   const [selectedPayRecord, setSelectedPayRecord] = useState<PayrollRecord | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    setIsLoading(true);
     setPayrollList(mockEngine.getPayrollRecords());
+    setTimeout(() => setIsLoading(false), 300);
   }, [user]);
 
   const handlePrint = () => {
@@ -37,6 +41,12 @@ export const Payroll: React.FC = () => {
       />
 
       {/* Payroll Table */}
+      {isLoading ? (
+        <div className="space-y-4">
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+      ) : (
       <DataTable
         title="Monthly Salary Records"
         count={`${payrollList.length} Records`}
@@ -88,6 +98,7 @@ export const Payroll: React.FC = () => {
           </tr>
         ))}
       </DataTable>
+      )}
 
       {/* Pay Slip Modal */}
       {selectedPayRecord && (
