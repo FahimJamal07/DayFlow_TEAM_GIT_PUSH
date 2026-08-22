@@ -26,6 +26,8 @@ import {
   INITIAL_SIGNALS,
   INITIAL_LEAVE_TYPES,
 } from './mockData';
+import { supabaseService } from '../lib/supabaseService';
+import { isMockMode } from '../lib/supabaseClient';
 
 const STORAGE_KEYS = {
   CURRENT_USER: 'dayflow_current_user',
@@ -78,6 +80,30 @@ class MockEngine {
     this.auditLogs = loadStorage(STORAGE_KEYS.AUDIT_LOGS, INITIAL_AUDIT_LOGS);
     this.payroll = loadStorage(STORAGE_KEYS.PAYROLL, INITIAL_PAYROLL);
     this.signals = loadStorage(STORAGE_KEYS.SIGNALS, INITIAL_SIGNALS);
+
+    // Initial sync from real Supabase if connected
+    if (!isMockMode) {
+      this.syncFromSupabase();
+    }
+  }
+
+  async syncFromSupabase() {
+    try {
+      const dbEmps = await supabaseService.getEmployees();
+      if (dbEmps && dbEmps.length > 0) {
+        this.employees = dbEmps;
+      }
+      const dbReqs = await supabaseService.getLeaveRequests();
+      if (dbReqs && dbReqs.length > 0) {
+        this.leaveRequests = dbReqs;
+      }
+      const dbPay = await supabaseService.getPayrollRecords();
+      if (dbPay && dbPay.length > 0) {
+        this.payroll = dbPay;
+      }
+    } catch (err) {
+      console.warn('Real Supabase initial sync:', err);
+    }
   }
 
   // --- AUTH & ROLES ---
@@ -177,6 +203,10 @@ class MockEngine {
     saveStorage(STORAGE_KEYS.ATTENDANCE, this.attendance);
     this.logAudit('CHECK_IN', 'attendance', record.id, { check_in: nowIso });
 
+    if (!isMockMode) {
+      supabaseService.checkIn(employeeId, notes).catch((e) => console.warn('Supabase CheckIn sync:', e.message));
+    }
+
     // Notification
     this.createNotification(
       this.currentUser.id,
@@ -215,6 +245,10 @@ class MockEngine {
 
     saveStorage(STORAGE_KEYS.ATTENDANCE, this.attendance);
     this.logAudit('CHECK_OUT', 'attendance', record.id, { check_out: nowIso, duration: record.total_minutes });
+
+    if (!isMockMode) {
+      supabaseService.checkOut(employeeId).catch((e) => console.warn('Supabase CheckOut sync:', e.message));
+    }
 
     this.createNotification(
       this.currentUser.id,
@@ -368,6 +402,10 @@ class MockEngine {
 
     saveStorage(STORAGE_KEYS.LEAVE_REQUESTS, this.leaveRequests);
 
+    if (!isMockMode) {
+      supabaseService.submitLeaveRequest(params).catch((e) => console.warn('Supabase LeaveRequest sync:', e.message));
+    }
+
     // Audit log
     this.logAudit('LEAVE_SUBMITTED', 'leave_request', newRequest.id, {
       employee: emp?.profile?.full_name,
@@ -422,6 +460,12 @@ class MockEngine {
     }
 
     saveStorage(STORAGE_KEYS.LEAVE_REQUESTS, this.leaveRequests);
+
+    if (!isMockMode) {
+      supabaseService
+        .processLeaveDecision(requestId, status, this.currentUser.id, rejectionReason)
+        .catch((e) => console.warn('Supabase Decision sync:', e.message));
+    }
 
     // 4. Notify requester
     const emp = this.getEmployeeById(req.employee_id);

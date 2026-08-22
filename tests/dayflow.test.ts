@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mockEngine } from '../src/mock/mockEngine';
 
-describe('DAYFLOW HRMS Master Test Suite', () => {
+describe('DAYFLOW HRMS Master Test Suite & Adversarial QA', () => {
   beforeEach(() => {
     mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000001'); // Ananya (Employee)
   });
@@ -105,5 +105,59 @@ describe('DAYFLOW HRMS Master Test Suite', () => {
     mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000002');
     const hrPayroll = mockEngine.getPayrollRecords();
     expect(hrPayroll.length).toBeGreaterThan(1);
+  });
+
+  // --- ADVERSARIAL QA TESTS ---
+  it('ADVERSARIAL: Rejects duplicate check-in while active', () => {
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000001');
+    const emp = mockEngine.getCurrentEmployee()!;
+    
+    // Ensure active check-in exists
+    const att = mockEngine.getTodayAttendance(emp.id);
+    if (!att) {
+      mockEngine.checkIn(emp.id, 'Initial check-in');
+    }
+
+    // Duplicate check-in should throw error
+    expect(() => mockEngine.checkIn(emp.id, 'Duplicate attempt')).toThrowError('Active check-in already recorded');
+  });
+
+  it('ADVERSARIAL: Rejects leave request with end_date before start_date', () => {
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000001');
+    const emp = mockEngine.getCurrentEmployee()!;
+
+    expect(() =>
+      mockEngine.submitLeaveRequest({
+        employee_id: emp.id,
+        leave_type_id: 'c1000000-0000-0000-0000-000000000001',
+        start_date: '2026-10-15',
+        end_date: '2026-10-10', // Prior to start_date!
+        reason: 'Invalid date request',
+      })
+    ).toThrowError('End date cannot be prior to start date.');
+  });
+
+  it('ADVERSARIAL: Rejects leave request exceeding available balance', () => {
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000001');
+    const emp = mockEngine.getCurrentEmployee()!;
+
+    expect(() =>
+      mockEngine.submitLeaveRequest({
+        employee_id: emp.id,
+        leave_type_id: 'c1000000-0000-0000-0000-000000000001',
+        start_date: '2026-12-01',
+        end_date: '2026-12-31', // 31 days exceeds 12 days total balance!
+        reason: 'Exceeding balance request',
+      })
+    ).toThrowError('Insufficient leave balance.');
+  });
+
+  it('ADVERSARIAL: Prevents unauthorized employee from processing HR decisions', () => {
+    // Set employee user
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000001');
+
+    expect(() =>
+      mockEngine.processLeaveDecision('a1000000-0000-0000-0000-000000000001', 'approved')
+    ).toThrowError('Unauthorized. HR or Admin role required.');
   });
 });

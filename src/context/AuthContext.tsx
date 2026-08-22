@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = () => {
     // Reset to initial employee
-    loginAs('p1');
+    loginAs('f1000000-0000-0000-0000-000000000001');
   };
 
   const role = user?.role || 'employee';
