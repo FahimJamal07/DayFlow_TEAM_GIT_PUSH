@@ -162,6 +162,16 @@ export const INITIAL_LEAVE_BALANCES: LeaveBalance[] = [
   { id: 'cb100000-0000-0000-0000-000000000002', employee_id: 'e1000000-0000-0000-0000-000000000001', leave_type_id: 'c1000000-0000-0000-0000-000000000002', total_allocated: 10, used: 1, pending: 0, year: 2026, leave_type: INITIAL_LEAVE_TYPES[1] },
   { id: 'cb100000-0000-0000-0000-000000000003', employee_id: 'e1000000-0000-0000-0000-000000000001', leave_type_id: 'c1000000-0000-0000-0000-000000000003', total_allocated: 15, used: 2, pending: 0, year: 2026, leave_type: INITIAL_LEAVE_TYPES[2] },
   { id: 'cb100000-0000-0000-0000-000000000004', employee_id: 'e1000000-0000-0000-0000-000000000005', leave_type_id: 'c1000000-0000-0000-0000-000000000003', total_allocated: 15, used: 0, pending: 5, year: 2026, leave_type: INITIAL_LEAVE_TYPES[2] },
+  
+  // Rahul (HR)
+  { id: 'cb100000-0000-0000-0000-000000000005', employee_id: 'e1000000-0000-0000-0000-000000000002', leave_type_id: 'c1000000-0000-0000-0000-000000000001', total_allocated: 12, used: 0, pending: 0, year: 2026, leave_type: INITIAL_LEAVE_TYPES[0] },
+  { id: 'cb100000-0000-0000-0000-000000000006', employee_id: 'e1000000-0000-0000-0000-000000000002', leave_type_id: 'c1000000-0000-0000-0000-000000000002', total_allocated: 10, used: 0, pending: 0, year: 2026, leave_type: INITIAL_LEAVE_TYPES[1] },
+  { id: 'cb100000-0000-0000-0000-000000000007', employee_id: 'e1000000-0000-0000-0000-000000000002', leave_type_id: 'c1000000-0000-0000-0000-000000000003', total_allocated: 15, used: 0, pending: 0, year: 2026, leave_type: INITIAL_LEAVE_TYPES[2] },
+  
+  // Vikramaditya (Admin)
+  { id: 'cb100000-0000-0000-0000-000000000008', employee_id: 'e1000000-0000-0000-0000-000000000003', leave_type_id: 'c1000000-0000-0000-0000-000000000001', total_allocated: 12, used: 0, pending: 0, year: 2026, leave_type: INITIAL_LEAVE_TYPES[0] },
+  { id: 'cb100000-0000-0000-0000-000000000009', employee_id: 'e1000000-0000-0000-0000-000000000003', leave_type_id: 'c1000000-0000-0000-0000-000000000002', total_allocated: 10, used: 0, pending: 0, year: 2026, leave_type: INITIAL_LEAVE_TYPES[1] },
+  { id: 'cb100000-0000-0000-0000-000000000010', employee_id: 'e1000000-0000-0000-0000-000000000003', leave_type_id: 'c1000000-0000-0000-0000-000000000003', total_allocated: 15, used: 0, pending: 0, year: 2026, leave_type: INITIAL_LEAVE_TYPES[2] },
 ];
 
 export const INITIAL_LEAVE_REQUESTS: LeaveRequest[] = [

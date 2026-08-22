@@ -15,7 +15,8 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenCommandBar, onOpenNotifica
   const [timeStr, setTimeStr] = useState<string>('');
   const [dateStr, setDateStr] = useState<string>('');
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const [showRoleDropdown, setShowRoleDropdown] = useState<boolean>(false);
+  const [showDemoDropdown, setShowDemoDropdown] = useState<boolean>(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState<boolean>(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -92,6 +93,72 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenCommandBar, onOpenNotifica
           <span className="font-bold" style={{ color: 'var(--df-text-primary)' }}>{timeStr}</span>
         </div>
 
+        {/* Demo Mode Control */}
+        <div className="relative">
+          <button
+            onClick={() => {
+              setShowDemoDropdown(!showDemoDropdown);
+              setShowProfileDropdown(false);
+            }}
+            className="hidden md:flex items-center space-x-2 px-3 py-1.5 text-xs transition-colors"
+            style={{
+              background: 'transparent',
+              border: '1px dashed var(--df-border-strong)',
+              borderRadius: 'var(--df-radius)',
+              color: 'var(--df-text-muted)',
+            }}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span className="font-bold uppercase tracking-wider">Demo Mode</span>
+          </button>
+          
+          {showDemoDropdown && (
+            <div
+              className="absolute right-0 mt-2 w-72 p-0 z-50 animate-in fade-in duration-150"
+              style={{
+                background: 'var(--df-surface)',
+                border: '1px solid var(--df-border)',
+                borderRadius: 'var(--df-radius)',
+                boxShadow: 'var(--df-shadow-dropdown)',
+              }}
+            >
+              <Panel padding="none" className="overflow-hidden">
+                <div className="p-3" style={{ borderBottom: '1px solid var(--df-border)', background: 'var(--df-bg)' }}>
+                  <div className="df-label font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--df-text-primary)' }}>
+                    Demo Mode — Switch Persona
+                  </div>
+                  <div className="text-[10px]" style={{ color: 'var(--df-text-muted)' }}>
+                    For demonstration purposes only. Switches the active persona without ending the real session.
+                  </div>
+                </div>
+                <div className="p-1 space-y-0.5 max-h-64 overflow-y-auto">
+                  {demoAccounts.map((acc) => (
+                    <button
+                      key={acc.id}
+                      onClick={() => {
+                        loginAs(acc.id);
+                        setShowDemoDropdown(false);
+                      }}
+                      className="w-full text-left p-2 text-xs transition-colors flex items-center justify-between group"
+                      style={{
+                        borderRadius: 'var(--df-radius)',
+                        background: user?.id === acc.id ? 'var(--df-accent-subtle)' : 'transparent',
+                        border: user?.id === acc.id ? '1px solid var(--df-accent)' : '1px solid transparent',
+                      }}
+                    >
+                      <div>
+                        <div className="font-semibold" style={{ color: 'var(--df-text-primary)' }}>{acc.name}</div>
+                        <div className="text-[10px]" style={{ color: 'var(--df-text-muted)' }}>{acc.title}</div>
+                      </div>
+                      <StatusBadge status={acc.status}>{acc.role}</StatusBadge>
+                    </button>
+                  ))}
+                </div>
+              </Panel>
+            </div>
+          )}
+        </div>
+
         {/* Notifications Button */}
         <button
           onClick={onOpenNotifications}
@@ -113,10 +180,13 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenCommandBar, onOpenNotifica
           )}
         </button>
 
-        {/* Interactive Role Switcher Dropdown */}
+        {/* Profile Dropdown */}
         <div className="relative">
           <button
-            onClick={() => setShowRoleDropdown(!showRoleDropdown)}
+            onClick={() => {
+              setShowProfileDropdown(!showProfileDropdown);
+              setShowDemoDropdown(false);
+            }}
             className="flex items-center space-x-2 px-3 py-2 transition-colors"
             style={{
               background: 'var(--df-bg)',
@@ -141,9 +211,9 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenCommandBar, onOpenNotifica
             <ChevronDown className="w-4 h-4" style={{ color: 'var(--df-text-muted)' }} />
           </button>
 
-          {showRoleDropdown && (
+          {showProfileDropdown && (
             <div
-              className="absolute right-0 mt-2 w-64 p-2 z-50 animate-in fade-in duration-150"
+              className="absolute right-0 mt-2 w-56 p-2 z-50 animate-in fade-in duration-150"
               style={{
                 background: 'var(--df-surface)',
                 border: '1px solid var(--df-border)',
@@ -151,45 +221,23 @@ export const TopBar: React.FC<TopBarProps> = ({ onOpenCommandBar, onOpenNotifica
                 boxShadow: 'var(--df-shadow-dropdown)',
               }}
             >
-              <div
-                className="px-3 py-2 df-label font-bold uppercase tracking-wider"
-                style={{ color: 'var(--df-text-muted)', borderBottom: '1px solid var(--df-border)' }}
-              >
-                Switch Demo User / Role
+              <div className="px-3 py-3" style={{ borderBottom: '1px solid var(--df-border)' }}>
+                <p className="df-label font-bold" style={{ color: 'var(--df-text-primary)' }}>{user?.full_name}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--df-text-muted)' }}>{user?.email}</p>
+                <div className="mt-2">
+                   <StatusBadge status="info">{role}</StatusBadge>
+                </div>
               </div>
-              <div className="py-1 space-y-0.5">
-                {demoAccounts.map((acc) => (
-                  <button
-                    key={acc.id}
-                    onClick={() => {
-                      loginAs(acc.id);
-                      setShowRoleDropdown(false);
-                    }}
-                    className="w-full text-left p-2 text-xs transition-colors flex items-center justify-between"
-                    style={{
-                      borderRadius: 'var(--df-radius)',
-                      background: user?.id === acc.id ? 'var(--df-accent-subtle)' : 'transparent',
-                      border: user?.id === acc.id ? '1px solid var(--df-accent)' : '1px solid transparent',
-                    }}
-                  >
-                    <div>
-                      <div className="font-semibold" style={{ color: 'var(--df-text-primary)' }}>{acc.name}</div>
-                      <div className="text-[10px]" style={{ color: 'var(--df-text-muted)' }}>{acc.title}</div>
-                    </div>
-                    <StatusBadge status={acc.status}>{acc.role}</StatusBadge>
-                  </button>
-                ))}
-              </div>
-              <div
-                className="mt-1 pt-1"
-                style={{ borderTop: '1px solid var(--df-border)' }}
-              >
+              
+              <div className="py-1">
                 <button
                   onClick={() => {
                     logout();
                   }}
-                  className="w-full text-left p-2 df-label font-semibold transition-colors hover:opacity-80 flex items-center space-x-2"
+                  className="w-full text-left px-3 py-2 text-sm font-semibold transition-colors hover:bg-opacity-80 flex items-center space-x-2 mt-1"
                   style={{ color: 'var(--df-status-absent)', borderRadius: 'var(--df-radius)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--df-status-absent-subtle)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                 >
                   Sign Out
                 </button>

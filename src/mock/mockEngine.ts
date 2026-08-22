@@ -435,6 +435,10 @@ class MockEngine {
     );
     const lType = INITIAL_LEAVE_TYPES.find((t) => t.id === params.leave_type_id);
 
+    if (!balance) {
+      throw new Error('No leave balance configured for this leave type.');
+    }
+
     if (balance && balance.total_allocated - balance.used - balance.pending < days) {
       throw new Error(`Insufficient leave balance. Requested ${days} days, but only ${balance.total_allocated - balance.used - balance.pending} days available.`);
     }

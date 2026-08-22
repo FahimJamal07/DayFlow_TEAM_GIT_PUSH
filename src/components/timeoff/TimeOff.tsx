@@ -79,17 +79,20 @@ export const TimeOff: React.FC = () => {
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Header */}
       <PageHeader
-        title="Time Off & Leave"
-        description="Track leave balances, submit requests, and review approvals."
+        title={isHR ? "Time Off Management" : "Time Off & Leave"}
+        description={isHR ? "Company-wide leave activity and history" : "Track leave balances, submit requests, and review approvals."}
         actions={
-          <Button variant="primary" size="lg" onClick={() => setShowModal(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Request Time Off
-          </Button>
+          !isHR ? (
+            <Button variant="primary" size="lg" onClick={() => setShowModal(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Request Time Off
+            </Button>
+          ) : undefined
         }
       />
 
       {/* Leave Balances Cards */}
+      {!isHR && (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {leaveBalances.map((bal) => {
           const available = bal.total_allocated - bal.used - bal.pending;
@@ -138,6 +141,7 @@ export const TimeOff: React.FC = () => {
           );
         })}
       </div>
+      )}
 
       {/* Leave Requests Table */}
       <DataTable
