@@ -69,7 +69,6 @@ class MockEngine {
   private notifications: NotificationItem[];
   private auditLogs: AuditLog[];
   private payroll: PayrollRecord[];
-  private signals: WorkforceSignal[];
 
   constructor() {
     this.currentUser = loadStorage(STORAGE_KEYS.CURRENT_USER, INITIAL_PROFILES[0]); // Ananya (Employee)
@@ -80,7 +79,7 @@ class MockEngine {
     this.notifications = loadStorage(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
     this.auditLogs = loadStorage(STORAGE_KEYS.AUDIT_LOGS, INITIAL_AUDIT_LOGS);
     this.payroll = loadStorage(STORAGE_KEYS.PAYROLL, INITIAL_PAYROLL);
-    this.signals = loadStorage(STORAGE_KEYS.SIGNALS, INITIAL_SIGNALS);
+    this.payroll = loadStorage(STORAGE_KEYS.PAYROLL, INITIAL_PAYROLL);
 
     // Initial sync from real Supabase if connected
     if (!isMockMode) {
@@ -277,6 +276,7 @@ class MockEngine {
       'success'
     );
 
+    this.evaluateSignals();
     return record;
   }
 
@@ -319,6 +319,7 @@ class MockEngine {
       'info'
     );
 
+    this.evaluateSignals();
     return record;
   }
 
@@ -488,6 +489,7 @@ class MockEngine {
       );
     });
 
+    this.evaluateSignals();
     return newRequest;
   }
 
@@ -548,6 +550,7 @@ class MockEngine {
       reason: rejectionReason,
     });
 
+    this.evaluateSignals();
     return req;
   }
 
@@ -617,8 +620,166 @@ class MockEngine {
   }
 
   // --- SIGNALS ENGINE ---
+  private evaluateRuleALateCheckin(): WorkforceSignal[] {
+    const signals: WorkforceSignal[] = [];
+    
+    for (const emp of this.employees) {
+      const empAttendance = this.attendance.filter((a) => a.employee_id === emp.id);
+      if (empAttendance.length === 0) continue;
+      
+      let lateCount = 0;
+      for (const att of empAttendance) {
+        if (att.status === 'late') {
+          lateCount++;
+        } else if (att.check_in) {
+          const checkInDate = new Date(att.check_in);
+          if (checkInDate.getHours() >= 10 && checkInDate.getMinutes() >= 0) {
+            lateCount++;
+          }
+        }
+      }
+      
+      if (lateCount >= 3) {
+        signals.push({
+          id: 'sig_a_' + emp.id,
+          signal_type: 'LATE_CHECKIN_PATTERN',
+          title: 'Repeated Late Check-Ins',
+          description: `${emp.profile?.full_name || 'Employee'} has checked in late ${lateCount} times.`,
+          severity: lateCount >= 5 ? 'high' : 'medium',
+          employee_id: emp.id,
+          department_id: emp.department_id,
+          metadata: { late_count: lateCount, window_days: empAttendance.length },
+          created_at: new Date().toISOString(),
+        });
+      }
+    }
+    return signals;
+  }
+
+  private evaluateRuleBLeaveConcentration(): WorkforceSignal[] {
+    const signals: WorkforceSignal[] = [];
+    const depts = this.getDepartments();
+    
+    for (const dept of depts) {
+      const deptEmployees = this.employees.filter((e) => e.department_id === dept.id);
+      if (deptEmployees.length === 0) continue;
+      
+      const deptLeaveReqs = this.leaveRequests.filter(
+        (r) => (r.status === 'pending' || r.status === 'approved') && 
+        this.getEmployeeById(r.employee_id)?.department_id === dept.id
+      );
+      
+      const dateCounts = new Map<string, Set<string>>();
+      
+      for (const req of deptLeaveReqs) {
+        const start = new Date(req.start_date);
+        const end = new Date(req.end_date);
+        let current = new Date(start);
+        while (current <= end) {
+          const dateStr = current.toISOString().split('T')[0];
+          if (!dateCounts.has(dateStr)) {
+            dateCounts.set(dateStr, new Set<string>());
+          }
+          dateCounts.get(dateStr)!.add(req.employee_id);
+          current.setDate(current.getDate() + 1);
+        }
+      }
+      
+      for (const [date, empsOnLeave] of dateCounts.entries()) {
+        const overlapPercentage = empsOnLeave.size / deptEmployees.length;
+        if (overlapPercentage >= 0.4) {
+          signals.push({
+            id: 'sig_b_' + dept.id + '_' + date,
+            signal_type: 'LEAVE_CONCENTRATION',
+            title: `${dept.name} Leave Overlap Risk`,
+            description: `${dept.name} has ${(overlapPercentage * 100).toFixed(0)}% of headcount requesting leave on ${date}.`,
+            severity: overlapPercentage >= 0.5 ? 'high' : 'medium',
+            department_id: dept.id,
+            metadata: { overlap_percentage: parseFloat((overlapPercentage * 100).toFixed(1)), date, department_name: dept.name },
+            created_at: new Date().toISOString(),
+          });
+        }
+      }
+    }
+    return signals;
+  }
+
+  private evaluateRuleCPayrollChange(): WorkforceSignal[] {
+    const signals: WorkforceSignal[] = [];
+    
+    for (const emp of this.employees) {
+      const empPayroll = this.payroll
+        .filter((p) => p.employee_id === emp.id)
+        .sort((a, b) => {
+          if (a.pay_period_year !== b.pay_period_year) return b.pay_period_year - a.pay_period_year;
+          return b.pay_period_month - a.pay_period_month;
+        });
+        
+      if (empPayroll.length >= 2) {
+        const latest = empPayroll[0];
+        const previous = empPayroll[1];
+        
+        const diff = Math.abs(latest.net_salary - previous.net_salary);
+        const percentChange = (diff / previous.net_salary) * 100;
+        
+        if (percentChange > 10) {
+          signals.push({
+            id: 'sig_c_' + latest.id,
+            signal_type: 'PAYROLL_CHANGE',
+            title: 'Significant Payroll Change',
+            description: `${emp.profile?.full_name || 'Employee'} net salary changed by ${percentChange.toFixed(1)}% compared to the prior period.`,
+            severity: 'medium',
+            employee_id: emp.id,
+            department_id: emp.department_id,
+            metadata: { previous_net: previous.net_salary, new_net: latest.net_salary, percentage_change: parseFloat(percentChange.toFixed(2)) },
+            created_at: new Date().toISOString(),
+          });
+        }
+      }
+    }
+    return signals;
+  }
+
+  private evaluateRuleDAttendanceAnomaly(): WorkforceSignal[] {
+    const signals: WorkforceSignal[] = [];
+    
+    for (const emp of this.employees) {
+      const empAttendance = this.attendance.filter((a) => a.employee_id === emp.id && a.check_out && a.total_minutes > 0);
+      if (empAttendance.length < 2) continue;
+      
+      const totalSum = empAttendance.reduce((acc, att) => acc + att.total_minutes, 0);
+      const avgMinutes = totalSum / empAttendance.length;
+      
+      for (const att of empAttendance) {
+        if (att.total_minutes < avgMinutes * 0.5) {
+          signals.push({
+            id: 'sig_d_' + att.id,
+            signal_type: 'ATTENDANCE_ANOMALY',
+            title: 'Attendance Anomaly',
+            description: `${emp.profile?.full_name || 'Employee'} logged significantly fewer hours on ${att.date}.`,
+            severity: 'low',
+            employee_id: emp.id,
+            department_id: emp.department_id,
+            metadata: { date: att.date, actual_minutes: att.total_minutes, average_minutes: Math.round(avgMinutes) },
+            created_at: new Date().toISOString(),
+          });
+        }
+      }
+    }
+    return signals;
+  }
+
+  evaluateSignals(): WorkforceSignal[] {
+    return [
+      ...this.evaluateRuleALateCheckin(),
+      ...this.evaluateRuleBLeaveConcentration(),
+      ...this.evaluateRuleCPayrollChange(),
+      ...this.evaluateRuleDAttendanceAnomaly(),
+    ];
+  }
+
   getSignals(): WorkforceSignal[] {
-    return this.signals;
+    return this.evaluateSignals();
   }
 }
 

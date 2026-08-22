@@ -107,6 +107,67 @@ describe('DAYFLOW HRMS Master Test Suite & Adversarial QA', () => {
     expect(hrPayroll.length).toBeGreaterThan(1);
   });
 
+  // --- INTELLIGENCE ENGINE TESTS ---
+  it('REQ-INT-01: Rule A - Late Check-in Pattern Detection', () => {
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000001'); // Ananya
+    const emp = mockEngine.getCurrentEmployee()!;
+    
+    // Create 3 late check-ins by directly adding to attendance in mockEngine
+    // Since mockEngine.checkIn uses current time, we'll manually push late records
+    const attendanceRecords = mockEngine.getAllAttendance();
+    const mockLateDate = '2026-08-25';
+    for (let i = 0; i < 3; i++) {
+      attendanceRecords.push({
+        id: `att_late_${i}`,
+        employee_id: emp.id,
+        date: `2026-08-${25 + i}`,
+        status: 'late',
+        total_minutes: 400,
+        break_minutes: 0,
+        overtime_minutes: 0,
+      });
+    }
+
+    const signals = mockEngine.getSignals();
+    const lateSignal = signals.find(s => s.signal_type === 'LATE_CHECKIN_PATTERN' && s.employee_id === emp.id);
+    expect(lateSignal).toBeDefined();
+    expect(lateSignal?.severity).toBe('medium');
+    expect(lateSignal?.metadata?.late_count).toBeGreaterThanOrEqual(3);
+  });
+
+  it('REQ-INT-02: Rule B - Leave Concentration Risk', () => {
+    // HR User
+    mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000002');
+    
+    // Department 1 (ENG) has 3 employees. 40% of 3 is 1.2, so 2 employees on leave will trigger it.
+    // Let's submit 2 overlapping leaves in ENG.
+    // e1000000-0000-0000-0000-000000000001 and e1000000-0000-0000-0000-000000000003 are in ENG.
+    
+    mockEngine.submitLeaveRequest({
+      employee_id: 'e1000000-0000-0000-0000-000000000001',
+      leave_type_id: 'c1000000-0000-0000-0000-000000000001',
+      start_date: '2026-09-15',
+      end_date: '2026-09-15',
+      reason: 'Overlap test 1'
+    });
+
+    mockEngine.submitLeaveRequest({
+      employee_id: 'e1000000-0000-0000-0000-000000000003',
+      leave_type_id: 'c1000000-0000-0000-0000-000000000001',
+      start_date: '2026-09-15',
+      end_date: '2026-09-16',
+      reason: 'Overlap test 2'
+    });
+
+    const signals = mockEngine.getSignals();
+    const overlapSignal = signals.find(s => s.signal_type === 'LEAVE_CONCENTRATION' && s.department_id === 'd1000000-0000-0000-0000-000000000001' && s.metadata?.date === '2026-09-15');
+    
+    expect(overlapSignal).toBeDefined();
+    // 2 out of 3 = 66.6%, severity should be high
+    expect(overlapSignal?.severity).toBe('high');
+    expect(overlapSignal?.metadata?.overlap_percentage).toBeGreaterThanOrEqual(60);
+  });
+
   // --- ADVERSARIAL QA TESTS ---
   it('ADVERSARIAL: Rejects duplicate check-in while active', () => {
     mockEngine.setCurrentUser('f1000000-0000-0000-0000-000000000001');
