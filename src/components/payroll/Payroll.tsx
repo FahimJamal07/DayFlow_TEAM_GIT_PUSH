@@ -182,7 +182,7 @@ export const Payroll: React.FC = () => {
             </div>
 
             {/* Net Total */}
-            <Panel padding="lg" className="flex items-center justify-between" style={{ background: 'var(--df-sidebar-bg)', color: '#ffffff', borderColor: 'transparent' }}>
+            <div className="p-6 flex items-center justify-between" style={{ background: 'var(--df-sidebar-bg)', color: '#ffffff', borderRadius: 'var(--df-radius)' }}>
               <div>
                 <span className="df-label" style={{ color: 'var(--df-sidebar-text)' }}>Net Salary Payable</span>
                 <div className="df-display df-mono mt-1" style={{ fontSize: '2rem', color: '#ffffff' }}>
@@ -201,7 +201,7 @@ export const Payroll: React.FC = () => {
                 <CheckCircle2 className="w-5 h-5" />
                 <span>Direct Deposited</span>
               </div>
-            </Panel>
+            </div>
 
             {/* Actions */}
             <div className="flex items-center justify-between pt-4" style={{ borderTop: '1px solid var(--df-border)' }}>
