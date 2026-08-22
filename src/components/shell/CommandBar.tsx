@@ -5,6 +5,32 @@ import { useAuth } from '../../context/AuthContext';
 import { mockEngine } from '../../mock/mockEngine';
 import { Employee } from '../../types';
 
+function parseCommandIntent(query: string, isHR: boolean): { type: 'navigate' | 'none', path?: string, title?: string, description?: string } {
+  const q = query.toLowerCase().trim();
+  if (!q) return { type: 'none' };
+
+  if (isHR && (q.includes("pending leaves") || q.includes("pending requests") || q.includes("leave requests"))) {
+    return { type: 'navigate', path: '/decisions', title: 'Decision Inbox', description: 'Pending leave decisions' };
+  }
+  if (isHR && (q.includes("who's late") || q.includes("late checkins") || q.includes("late arrivals") || q.includes("who is late"))) {
+    return { type: 'navigate', path: '/signals', title: 'Signals', description: 'Attendance anomalies and late check-in patterns' };
+  }
+  if (q.includes("my payroll") || q.includes("my salary") || q.includes("payslip")) {
+    return { type: 'navigate', path: '/payroll', title: 'Payroll', description: 'View your confidential payslip and salary history' };
+  }
+  if (q.includes("team availability") || q.includes("who's on leave") || q.includes("who's away") || q.includes("who is on leave") || q.includes("who is away")) {
+    return { type: 'navigate', path: '/presence', title: 'Presence', description: 'Check team availability and current presence' };
+  }
+  if (q.includes("audit") || q.includes("activity log") || q.includes("history")) {
+    return { type: 'navigate', path: '/activity', title: 'Activity Log', description: 'View system audit trails and history' };
+  }
+  if (isHR && (q.includes("reports") || q.includes("export"))) {
+    return { type: 'navigate', path: '/reports', title: 'Reports', description: 'Generate and export datasets' };
+  }
+  
+  return { type: 'none' };
+}
+
 interface CommandBarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -66,6 +92,8 @@ export const CommandBar: React.FC<CommandBarProps> = ({ isOpen, onClose }) => {
     item.label.toLowerCase().includes(query.toLowerCase())
   );
 
+  const intentMatch = parseCommandIntent(query, isHR);
+
   const handleSelect = (path: string) => {
     navigate(path);
     onClose();
@@ -108,6 +136,35 @@ export const CommandBar: React.FC<CommandBarProps> = ({ isOpen, onClose }) => {
 
         {/* Results List */}
         <div className="overflow-y-auto p-2 space-y-4">
+          
+          {/* Suggested Intent */}
+          {intentMatch.type === 'navigate' && intentMatch.path && (
+            <div>
+              <div className="df-label px-4 py-2 font-bold" style={{ color: 'var(--df-text-secondary)' }}>
+                Suggested
+              </div>
+              <div className="px-2">
+                <button
+                  onClick={() => handleSelect(intentMatch.path!)}
+                  className="w-full flex items-center justify-between px-4 py-3 transition-colors text-left"
+                  style={{
+                    borderRadius: 'var(--df-radius)',
+                    background: 'var(--df-accent-subtle)',
+                    border: '1px solid var(--df-accent)',
+                  }}
+                >
+                  <div className="flex flex-col">
+                    <span className="df-label font-bold" style={{ color: 'var(--df-text-primary)' }}>{intentMatch.title}</span>
+                    <span className="text-xs mt-0.5" style={{ color: 'var(--df-text-secondary)' }}>{intentMatch.description}</span>
+                  </div>
+                  <span className="text-xs flex items-center font-bold" style={{ color: 'var(--df-accent)' }}>
+                    Go <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                  </span>
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Navigation Section */}
           {filteredNav.length > 0 && (
             <div>
@@ -185,7 +242,7 @@ export const CommandBar: React.FC<CommandBarProps> = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          {filteredNav.length === 0 && filteredEmployees.length === 0 && (
+          {intentMatch.type === 'none' && filteredNav.length === 0 && filteredEmployees.length === 0 && (
             <div className="px-4 py-8 text-center df-label" style={{ color: 'var(--df-text-muted)' }}>
               No matching results found for "{query}"
             </div>
