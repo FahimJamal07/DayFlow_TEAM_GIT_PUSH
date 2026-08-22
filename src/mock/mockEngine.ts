@@ -226,6 +226,63 @@ class MockEngine {
     return record;
   }
 
+  startBreak(employeeId: string): AttendanceRecord {
+    const record = this.getTodayAttendance(employeeId);
+    if (!record || !record.check_in || record.check_out) {
+      throw new Error('Active check-in required to start a break.');
+    }
+    const lastEvent = record.events?.[record.events.length - 1];
+    if (lastEvent?.event_type === 'BREAK_START') {
+      throw new Error('Already on break.');
+    }
+
+    const nowIso = new Date().toISOString();
+    record.events?.push({
+      id: 'ev_' + Date.now(),
+      attendance_id: record.id,
+      event_type: 'BREAK_START',
+      timestamp: nowIso,
+      device_info: 'Web Workday Interface',
+    });
+
+    saveStorage(STORAGE_KEYS.ATTENDANCE, this.attendance);
+    this.logAudit('BREAK_START', 'attendance', record.id, { break_start: nowIso });
+    this.createNotification(this.currentUser.id, 'Break Started', 'Enjoy your break time!', 'info');
+
+    return record;
+  }
+
+  endBreak(employeeId: string): AttendanceRecord {
+    const record = this.getTodayAttendance(employeeId);
+    if (!record || !record.check_in || record.check_out) {
+      throw new Error('Active check-in required.');
+    }
+    const lastEvent = record.events?.[record.events.length - 1];
+    if (lastEvent?.event_type !== 'BREAK_START') {
+      throw new Error('Not currently on break.');
+    }
+
+    const nowIso = new Date().toISOString();
+    const breakStartMs = new Date(lastEvent.timestamp).getTime();
+    const breakEndMs = new Date(nowIso).getTime();
+    const durationMinutes = Math.max(1, Math.floor((breakEndMs - breakStartMs) / 60000));
+
+    record.break_minutes += durationMinutes;
+    record.events?.push({
+      id: 'ev_' + Date.now(),
+      attendance_id: record.id,
+      event_type: 'BREAK_END',
+      timestamp: nowIso,
+      device_info: 'Web Workday Interface',
+    });
+
+    saveStorage(STORAGE_KEYS.ATTENDANCE, this.attendance);
+    this.logAudit('BREAK_END', 'attendance', record.id, { break_end: nowIso, duration: durationMinutes });
+    this.createNotification(this.currentUser.id, 'Break Ended', `Resumed active workday after ${durationMinutes} minutes break.`, 'success');
+
+    return record;
+  }
+
   // --- TIME OFF / LEAVE ENGINE ---
   getLeaveBalances(employeeId: string): LeaveBalance[] {
     return this.leaveBalances.filter((b) => b.employee_id === employeeId);
